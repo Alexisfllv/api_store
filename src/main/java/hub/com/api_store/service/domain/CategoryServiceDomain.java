@@ -5,6 +5,8 @@ import hub.com.api_store.exception.ResourceNotFoundException;
 import hub.com.api_store.nums.ExceptionMessages;
 import hub.com.api_store.repo.CategoryRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,5 +19,10 @@ public class CategoryServiceDomain {
         return categoryRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ExceptionMessages.RESOURCE_NOT_FOUND_ERROR.message()+id));
+    }
+
+    // findAllPage
+    public Page<Category> findAllPage(Pageable pageable){
+        return categoryRepo.findAll(pageable);
     }
 }
