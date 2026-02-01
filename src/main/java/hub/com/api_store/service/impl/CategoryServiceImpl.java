@@ -5,7 +5,10 @@ import hub.com.api_store.entity.Category;
 import hub.com.api_store.mapper.CategoryMapper;
 import hub.com.api_store.service.CategoryService;
 import hub.com.api_store.service.domain.CategoryServiceDomain;
+import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,5 +26,23 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryDTOResponse response = categoryMapper.toCategoryDTOResponse(categoryExist);
         return response;
     }
+
+    @Override
+    public PageResponse<CategoryDTOResponse> getPageListCategory(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Category> categoryPage = categoryServiceDomain.findAllPage(pageRequest);
+
+        return new PageResponse<>(
+                categoryPage.getContent()
+                        .stream()
+                        .map(categoryMapper::toCategoryDTOResponse)
+                        .toList(),
+                categoryPage.getNumber(),
+                categoryPage.getSize(),
+                categoryPage.getTotalElements(),
+                categoryPage.getTotalPages()
+        );
+    }
+
 
 }
