@@ -1,11 +1,13 @@
 package hub.com.api_store.controller;
 
 
+import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.service.CategoryService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,5 +36,14 @@ public class CategoryController {
         PageResponse<CategoryDTOResponse> paged = categoryService.getPageListCategory(page, size);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(StatusApi.SUCCESS, paged));
+    }
+
+    // POST
+    @PostMapping
+    ResponseEntity<GenericResponse<CategoryDTOResponse>> addCategoryPost(@Valid @RequestBody CategoryDTORequest categoryDTORequest){
+        CategoryDTOResponse response = categoryService.addCategory(categoryDTORequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new GenericResponse<>(StatusApi.CREATED, response)
+        );
     }
 }
