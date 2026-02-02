@@ -49,6 +49,19 @@ public class GlobalExceptionHandler {
 
     }
 
+    // Validate Unique Exception
+    @ExceptionHandler(UniqueValidateException.class)
+    public ResponseEntity<ErrorResponse> handleUniqueValidateException(
+            HttpServletRequest req, UniqueValidateException ex){
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage(),
+                req.getRequestURI(),
+                "Invalid UniqueValidate"
+        );
+        return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 
     // other exception
 
