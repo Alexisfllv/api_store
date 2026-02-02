@@ -14,7 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -83,6 +88,69 @@ public class CategoryServiceDomainTest {
             // Verify
             verify(categoryRepo).findById(idNotExist);
             verifyNoMoreInteractions(categoryRepo);
+        }
+    }
+
+
+    @Nested
+    @DisplayName("findAllPage")
+    class findAllPage{
+
+        @Test
+        @DisplayName("findAllPageTest")
+        void findAllPageTest(){
+            // Arrange
+            int page = 0;
+            int size = 2;
+            Pageable pageable = PageRequest.of(page, size);
+
+            Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
+            Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+            List<Category> cats = List.of(cat1, cat2);
+
+            Page<Category> expected = new PageImpl<>(cats, pageable, 10); // total=10 en BD
+
+            when(categoryRepo.findAll(pageable)).thenReturn(expected);
+
+            // Act
+            Page<Category> result = categoryServiceDomain.findAllPage(pageable);
+
+            // Assert
+            assertAll(
+                    () -> assertEquals(2, result.getContent().size()),
+                    () -> assertEquals(10, result.getTotalElements())
+            );
+
+            // Verify
+            verify(categoryRepo).findAll(pageable);
+        }
+
+        @Test
+        @DisplayName("findAllPageTestNoCategories")
+        void shouldReturnEmptyPageWhenNoCategoriesExist(){
+            // Arrange
+            int page = 0;
+            int size = 2;
+            Pageable pageable = PageRequest.of(page, size);
+
+            List<Category> cats = List.of(); // Lista vacía
+
+            Page<Category> expected = new PageImpl<>(cats, pageable, 0); // total=0
+
+            when(categoryRepo.findAll(pageable)).thenReturn(expected);
+
+            // Act
+            Page<Category> result = categoryServiceDomain.findAllPage(pageable);
+
+            // Assert
+            assertAll(
+                    () -> assertEquals(0, result.getContent().size()),
+                    () -> assertEquals(0, result.getTotalElements()),
+                    () -> assertTrue(result.isEmpty())
+            );
+
+            // Verify
+            verify(categoryRepo).findAll(pageable);
         }
     }
 }
