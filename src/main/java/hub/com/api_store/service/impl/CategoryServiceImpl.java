@@ -1,8 +1,10 @@
 package hub.com.api_store.service.impl;
 
+import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.mapper.CategoryMapper;
+import hub.com.api_store.nums.CategoryStatus;
 import hub.com.api_store.service.CategoryService;
 import hub.com.api_store.service.domain.CategoryServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
@@ -42,6 +44,17 @@ public class CategoryServiceImpl implements CategoryService {
                 categoryPage.getTotalElements(),
                 categoryPage.getTotalPages()
         );
+    }
+
+    // POST
+    @Override
+    public CategoryDTOResponse addCategory(CategoryDTORequest categoryDTORequest) {
+        Category category = categoryMapper.toCategory(categoryDTORequest);
+        categoryServiceDomain.validateUniqueName(category.getName());
+        category.setStatus(CategoryStatus.ACTIVE);
+        Category categorySaved =  categoryServiceDomain.saveCategory(category);
+        CategoryDTOResponse response = categoryMapper.toCategoryDTOResponse(categorySaved);
+        return response;
     }
 
 

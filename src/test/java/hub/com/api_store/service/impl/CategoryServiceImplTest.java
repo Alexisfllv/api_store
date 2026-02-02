@@ -1,5 +1,6 @@
 package hub.com.api_store.service.impl;
 
+import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.mapper.CategoryMapper;
@@ -113,6 +114,37 @@ public class CategoryServiceImplTest {
         inOrder.verify(categoryMapper, times(2)).toCategoryDTOResponse(any(Category.class));
         inOrder.verifyNoMoreInteractions();
 
+    }
+
+    @Test
+    @DisplayName("POST addCategory")
+    void shouldSaveCategory(){
+        // Arrange
+        CategoryDTORequest request = new CategoryDTORequest("Electronics", "Electronic devices");
+        Category unmappedCategory = new Category(null, "Electronics", "Electronic devices", null);
+        Category savedCategory = new Category(1L, "Electronics", "Electronic devices", CategoryStatus.ACTIVE);
+        CategoryDTOResponse expectedResponse = new CategoryDTOResponse(1L, "Electronics", "Electronic devices", CategoryStatus.ACTIVE);
+
+        when(categoryMapper.toCategory(request)).thenReturn(unmappedCategory);
+        when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(savedCategory);
+        when(categoryMapper.toCategoryDTOResponse(savedCategory)).thenReturn(expectedResponse);
+        // Act
+        CategoryDTOResponse result = categoryService.addCategory(request);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(1L,result.id()),
+                () -> assertEquals("Electronics", result.name()),
+                () -> assertEquals("Electronic devices",result.description()),
+                () -> assertEquals(CategoryStatus.ACTIVE,result.status())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(categoryMapper, categoryServiceDomain);
+        inOrder.verify( categoryMapper).toCategory(request);
+        inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
+        inOrder.verify(categoryMapper).toCategoryDTOResponse(savedCategory);
+        inOrder.verifyNoMoreInteractions();
     }
 
 }

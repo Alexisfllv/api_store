@@ -3,6 +3,8 @@ package hub.com.api_store.service.domain;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.exception.ResourceNotFoundException;
+import hub.com.api_store.exception.UniqueValidateException;
+import hub.com.api_store.mapper.CategoryMapper;
 import hub.com.api_store.nums.CategoryStatus;
 import hub.com.api_store.nums.ExceptionMessages;
 import hub.com.api_store.repo.CategoryRepo;
@@ -152,5 +154,70 @@ public class CategoryServiceDomainTest {
             // Verify
             verify(categoryRepo).findAll(pageable);
         }
+    }
+
+
+
+
+    @Nested
+    @DisplayName("validateUniqueName")
+    class saveCategory{
+
+        @Test
+        @DisplayName("validateUniqueName Not exist name")
+        void validateUniqueName_notExistName(){
+            // Arrange
+            String name = "name";
+            when(categoryRepo.existsByName(name)).thenReturn(Boolean.FALSE);
+            // Act & Assert
+            assertDoesNotThrow(
+                    () -> categoryServiceDomain.validateUniqueName(name)
+            );
+            // Verify
+            verify(categoryRepo).existsByName(name);
+            verifyNoMoreInteractions(categoryRepo);
+        }
+
+        @Test
+        @DisplayName("validateUniqueName exist name")
+        void validateUniqueName_existName(){
+            // Arrange
+            String nameExist = "name";
+            when(categoryRepo.existsByName(nameExist)).thenReturn(Boolean.TRUE);
+            // Act
+            UniqueValidateException ex = assertThrows(UniqueValidateException.class,
+                    () -> categoryServiceDomain.validateUniqueName(nameExist));
+            // Assert
+            assertAll(
+                    () -> assertNotNull(ex),
+                    () -> assertTrue(ex.getMessage().contains(ExceptionMessages.UNIQUE_EXC.message())),
+                    () -> assertTrue(ex.getMessage().contains(nameExist))
+            );
+            // Verify
+            verify(categoryRepo).existsByName(nameExist);
+            verifyNoMoreInteractions(categoryRepo);
+        }
+    }
+
+    @Test
+    @DisplayName("saveCategory")
+    void saveCategory(){
+        // Arrange
+        Category emptyCategory = new Category(null,"name","description",null);
+        when(categoryRepo.save(emptyCategory)).thenReturn(category);
+        // Act
+        Category result = categoryServiceDomain.saveCategory(emptyCategory);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(1L,result.getId()),
+                () -> assertEquals(emptyCategory.getName(), result.getName()),
+                () -> assertEquals(emptyCategory.getDescription(), result.getDescription()),
+                () -> assertEquals(CategoryStatus.ACTIVE, result.getStatus())
+        );
+
+        // Verify
+        verify(categoryRepo).save(emptyCategory);
+        verifyNoMoreInteractions(categoryRepo);
     }
 }
