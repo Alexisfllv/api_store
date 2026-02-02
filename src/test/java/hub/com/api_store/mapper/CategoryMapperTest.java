@@ -1,5 +1,6 @@
 package hub.com.api_store.mapper;
 
+import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.nums.CategoryStatus;
@@ -50,6 +51,35 @@ public class CategoryMapperTest {
             // Act
             CategoryDTOResponse result = categoryMapper.toCategoryDTOResponse(null);
 
+            // Assert
+            assertNull(result);
+        }
+    }
+
+
+    @Nested
+    @DisplayName("Test mapped entity <- request")
+    class ToEntityTests {
+        @Test
+        @DisplayName("Should map entity <- request")
+        void toCategoryDTORequest_shouldMapCorrectly() {
+            // Arrange
+            CategoryDTORequest request = new CategoryDTORequest("name","description");
+            // Act
+            Category result = categoryMapper.toCategory(request);
+
+            // Assert
+            assertAll(
+                    () -> assertEquals("name",result.getName()),
+                    () -> assertEquals("description",result.getDescription())
+            );
+        }
+
+        @Test
+        @DisplayName("Should map entity <- request null")
+        void toCategoryDTORequest_shouldHandleNull() {
+            // Act
+            Category result = categoryMapper.toCategory(null);
             // Assert
             assertNull(result);
         }
