@@ -93,7 +93,6 @@ public class CategoryServiceDomainTest {
         }
     }
 
-
     @Nested
     @DisplayName("findAllPage")
     class findAllPage{
@@ -156,9 +155,6 @@ public class CategoryServiceDomainTest {
         }
     }
 
-
-
-
     @Nested
     @DisplayName("validateUniqueName")
     class saveCategory{
@@ -219,5 +215,58 @@ public class CategoryServiceDomainTest {
         // Verify
         verify(categoryRepo).save(emptyCategory);
         verifyNoMoreInteractions(categoryRepo);
+    }
+
+    @Nested
+    @DisplayName("findAllPageByStatus")
+    class findAllPageByStatus{
+
+        @Test
+        @DisplayName("findAllPageByStatus")
+        void findAllPageByStatus(){
+            // Arrange
+            int page = 0;
+            int size = 2;
+            CategoryStatus status = CategoryStatus.ACTIVE;
+            Pageable pageable = PageRequest.of(page, size);
+            Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
+            Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+            List<Category> cats = List.of(cat1, cat2);
+            Page<Category> expected = new PageImpl<>(cats, pageable, 10);
+            when(categoryRepo.findByStatus(status, pageable)).thenReturn(expected);
+            // Act
+            Page<Category> result = categoryServiceDomain.findAllPageByStatus(status, pageable);
+            assertAll(
+                    () -> assertEquals(2,result.getContent().size()),
+                    () -> assertEquals(10, result.getTotalElements())
+            );
+            // Verify
+            verify(categoryRepo).findByStatus(status, pageable);
+        }
+
+        @Test
+        @DisplayName("findAllPageByStatusNoCategories")
+        void findAllPageByStatusNoCategories(){
+            // Arrange
+            int page = 0;
+            int size = 2;
+            CategoryStatus status = CategoryStatus.ACTIVE;
+            Pageable pageable = PageRequest.of(page, size);
+            List<Category> cats = List.of();
+            Page<Category> expected = new PageImpl<>(cats, pageable, 0);
+            when( categoryRepo.findByStatus(status, pageable)).thenReturn(expected);
+            // Act
+            Page<Category> result = categoryServiceDomain.findAllPageByStatus(status, pageable);
+
+            // Assert
+            assertAll(
+                    () -> assertEquals(0,result.getContent().size()),
+                    () -> assertEquals(0, result.getTotalElements()),
+                    () -> assertTrue(result.isEmpty())
+            );
+
+            // Verify
+            verify( categoryRepo).findByStatus(status, pageable);
+        }
     }
 }
