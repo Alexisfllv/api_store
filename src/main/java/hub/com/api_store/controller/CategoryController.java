@@ -73,7 +73,7 @@ public class CategoryController {
     ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryPut(@PathVariable Long id, @Valid @RequestBody CategoryDTOUpdate categoryDTOUpdate){
         CategoryDTOResponse response = categoryService.updateCategory(id, categoryDTOUpdate);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new GenericResponse<>(StatusApi.SUCCESS, response)
+                new GenericResponse<>(StatusApi.UPDATED, response)
         );
     }
 
@@ -83,5 +83,20 @@ public class CategoryController {
         categoryService.deleteSofCategory(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    // PATCH
+    @PatchMapping("/{id}/status/{status}")
+    ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryStatusPatch(@PathVariable Long id, @PathVariable String status){
+        try {
+            CategoryStatus upperStatus =  CategoryStatus.valueOf(status.toUpperCase());
+            CategoryDTOResponse response = categoryService.updateCategoryStatus(id, upperStatus);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new GenericResponse<>(StatusApi.UPDATED, response));
+        } catch (IllegalArgumentException e) {
+            throw new InvalidStatusException(
+                    "Status inválido. Valores: ACTIVE, INACTIVE, DELETED. Case: ");
+        }
+    }
+
 
 }
