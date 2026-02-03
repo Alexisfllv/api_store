@@ -100,5 +100,16 @@ public class CategoryServiceImpl implements CategoryService {
         categoryServiceDomain.saveCategory(categoryExist);
     }
 
+    // PATCH
+
+    @Override
+    public CategoryDTOResponse updateCategoryStatus(Long id, CategoryStatus newStatus) {
+        Category categoryExist = categoryServiceDomain.findByIdCategory(id);
+        categoryExist.setStatus(newStatus);
+        Category updatedCategory = categoryServiceDomain.saveCategory(categoryExist);
+        CategoryDTOResponse response = categoryMapper.toCategoryDTOResponse(updatedCategory);
+        return response;
+    }
+
 
 }
