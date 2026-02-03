@@ -2,6 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
+import hub.com.api_store.dto.category.CategoryDTOUpdate;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.mapper.CategoryMapper;
 import hub.com.api_store.nums.CategoryStatus;
@@ -145,6 +146,36 @@ public class CategoryServiceImplTest {
         inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
         inOrder.verify(categoryMapper).toCategoryDTOResponse(savedCategory);
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("PUT updateCategory")
+    void shouldUpdateCategory(){
+        // Arrange
+        Long idExist = 1L;
+        Category beforeCategory = new Category(1L, "Electronicos", "Elec", CategoryStatus.ACTIVE);
+        CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New",CategoryStatus.ACTIVE);
+        Category updateCategory = new Category(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+        CategoryDTOResponse updateResponse = new CategoryDTOResponse(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+        when(categoryServiceDomain.findByIdCategory(idExist)).thenReturn(beforeCategory);
+        when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(updateCategory);
+        when(categoryMapper.toCategoryDTOResponse(updateCategory)).thenReturn(updateResponse);
+
+        // Act
+        CategoryDTOResponse result = categoryService.updateCategory(idExist, update);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(updateResponse.id(),result.id()),
+                () -> assertEquals(updateResponse.name(),result.name()),
+                () -> assertEquals(CategoryStatus.ACTIVE,result.status())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(categoryMapper, categoryServiceDomain);
+        inOrder.verify(categoryServiceDomain).findByIdCategory(idExist);
+        inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
+        inOrder.verify(categoryMapper).toCategoryDTOResponse(updateCategory);
     }
 
 }
