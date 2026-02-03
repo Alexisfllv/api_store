@@ -56,4 +56,11 @@ public class CategoryController {
                 new GenericResponse<>(StatusApi.SUCCESS, response)
         );
     }
+
+    // Delete
+    @DeleteMapping("/soft-delete/{id}")
+    ResponseEntity<Void> deleteCategoryDelete(@PathVariable Long id){
+        categoryService.deleteSofCategory(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
