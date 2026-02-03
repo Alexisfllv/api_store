@@ -41,4 +41,10 @@ public class CategoryServiceDomain {
     public Category saveCategory(Category  category){
         return categoryRepo.save(category);
     }
+
+    // pageAllCategoryByStatus
+    public Page<Category> findAllPageByStatus(CategoryStatus status, Pageable pageable) {
+        return categoryRepo.findByStatus(status, pageable);
+    }
+
 }

@@ -11,6 +11,7 @@ import hub.com.api_store.service.domain.CategoryServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.valves.rewrite.InternalRewriteMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -38,6 +39,22 @@ public class CategoryServiceImpl implements CategoryService {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
         Page<Category> categoryPage = categoryServiceDomain.findAllPage(pageRequest);
 
+        return new PageResponse<>(
+                categoryPage.getContent()
+                        .stream()
+                        .map(categoryMapper::toCategoryDTOResponse)
+                        .toList(),
+                categoryPage.getNumber(),
+                categoryPage.getSize(),
+                categoryPage.getTotalElements(),
+                categoryPage.getTotalPages()
+        );
+    }
+
+    @Override
+    public PageResponse<CategoryDTOResponse> getPageListCategoryByStatus(CategoryStatus status, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+        Page<Category> categoryPage = categoryServiceDomain.findAllPageByStatus(status, pageRequest);
         return new PageResponse<>(
                 categoryPage.getContent()
                         .stream()

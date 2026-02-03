@@ -4,12 +4,15 @@ package hub.com.api_store.controller;
 import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.dto.category.CategoryDTOUpdate;
+import hub.com.api_store.exception.InvalidStatusException;
+import hub.com.api_store.nums.CategoryStatus;
 import hub.com.api_store.service.CategoryService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +42,23 @@ public class CategoryController {
                 .body(new GenericResponse<>(StatusApi.SUCCESS, paged));
     }
 
+    @GetMapping("/page/status/{status}")
+    ResponseEntity<GenericResponse<PageResponse<CategoryDTOResponse>>> getCategoryPageStatusGet(
+            @PathVariable String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size){
+        try {
+            CategoryStatus upperStatus =  CategoryStatus.valueOf(status.toUpperCase());
+            PageResponse<CategoryDTOResponse> paged = categoryService.getPageListCategoryByStatus(upperStatus,page,size);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new GenericResponse<>(StatusApi.SUCCESS, paged));
+        } catch (IllegalArgumentException e) {
+            throw new InvalidStatusException(
+                    "Status inválido. Valores: ACTIVE, INACTIVE, DELETED");
+        }
+    }
+
+
     // POST
     @PostMapping
     ResponseEntity<GenericResponse<CategoryDTOResponse>> addCategoryPost(@Valid @RequestBody CategoryDTORequest categoryDTORequest){
@@ -63,4 +83,5 @@ public class CategoryController {
         categoryService.deleteSofCategory(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
 }
