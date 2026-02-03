@@ -22,4 +22,8 @@ public interface CategoryService {
 
     // DELETE
     void deleteSofCategory(Long id);
+
+    // PATCH
+    CategoryDTOResponse updateCategoryStatus(Long id,CategoryStatus newStatus);
+
 }
