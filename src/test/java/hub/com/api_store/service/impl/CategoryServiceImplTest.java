@@ -231,4 +231,35 @@ public class CategoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("PATCH updateCategoryStatusPatch")
+    void shouldPatchCategoryStatusPatch(){
+        // Arrange
+        Long idExist = 1L;
+        CategoryStatus statusUpdated = CategoryStatus.INACTIVE;
+        Category categoryExist = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
+        Category categoryUpdated = new Category(1L, "Electronics", "Elec", statusUpdated);
+        CategoryDTOResponse responseUpdated =  new CategoryDTOResponse(1L, "Electronics", "Elec", statusUpdated);
+
+
+        when(categoryServiceDomain.findByIdCategory(idExist)).thenReturn(categoryExist);
+        when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(categoryUpdated);
+        when(categoryMapper.toCategoryDTOResponse(categoryUpdated)).thenReturn(responseUpdated);
+        // Act
+        CategoryDTOResponse response = categoryService.updateCategoryStatus(idExist, statusUpdated);
+        // Assert
+        assertAll(
+                () -> assertEquals(responseUpdated.id(),response.id()),
+                () -> assertEquals(responseUpdated.name(),response.name()),
+                () -> assertEquals(responseUpdated.status(),response.status())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(categoryMapper, categoryServiceDomain);
+        inOrder.verify(categoryServiceDomain).findByIdCategory(idExist);
+        inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
+        inOrder.verify(categoryMapper).toCategoryDTOResponse(categoryUpdated);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 }
