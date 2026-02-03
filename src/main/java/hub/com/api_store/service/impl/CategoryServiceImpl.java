@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -34,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public PageResponse<CategoryDTOResponse> getPageListCategory(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
         Page<Category> categoryPage = categoryServiceDomain.findAllPage(pageRequest);
 
         return new PageResponse<>(
