@@ -75,5 +75,12 @@ public class CategoryServiceImpl implements CategoryService {
         return response;
     }
 
+    @Override
+    public void deleteSofCategory(Long id) {
+        Category categoryExist = categoryServiceDomain.findByIdCategory(id);
+        categoryExist.setStatus(CategoryStatus.DELETED);
+        categoryServiceDomain.saveCategory(categoryExist);
+    }
+
 
 }
