@@ -196,4 +196,39 @@ public class CategoryServiceImplTest {
         inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
     }
 
+    @Test
+    @DisplayName("GET getPageListCategoryByStatus")
+    void shouldGetPageListCategoryByStatus(){
+        // Arrange
+        int page = 0;
+        int size = 2;
+        CategoryStatus status = CategoryStatus.ACTIVE;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+        Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
+        Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+        List<Category> cats = List.of(cat1, cat2);
+        CategoryDTOResponse dto1 = new CategoryDTOResponse(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
+        CategoryDTOResponse dto2 = new CategoryDTOResponse(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+        Page<Category> categoryPage = new PageImpl(cats, pageable, 10);
+        when(categoryServiceDomain.findAllPageByStatus(status, pageable)).thenReturn(categoryPage);
+        when(categoryMapper.toCategoryDTOResponse(cat1)).thenReturn(dto1);
+        when(categoryMapper.toCategoryDTOResponse(cat2)).thenReturn(dto2);
+        // Act
+        PageResponse<CategoryDTOResponse> result = categoryService.getPageListCategoryByStatus(status,page,size);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(2,result.content().size()),
+                () -> assertEquals(0,result.page()),
+                () -> assertEquals(10,result.totalElements()),
+                () -> assertEquals(5, result.totalPages())
+        );
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(categoryMapper, categoryServiceDomain);
+        inOrder.verify(categoryServiceDomain).findAllPageByStatus(status, pageable);
+        inOrder.verify(categoryMapper).toCategoryDTOResponse(cat1);
+        inOrder.verify(categoryMapper).toCategoryDTOResponse(cat2);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 }
