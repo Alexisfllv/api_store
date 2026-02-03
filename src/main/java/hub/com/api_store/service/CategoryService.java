@@ -16,4 +16,7 @@ public interface CategoryService {
 
     // PUT
     CategoryDTOResponse updateCategory(Long id, CategoryDTOUpdate categoryDTOUpdate);
+
+    // DELETE
+    void deleteSofCategory(Long id);
 }

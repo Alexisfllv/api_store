@@ -178,4 +178,25 @@ public class CategoryServiceImplTest {
         inOrder.verify(categoryMapper).toCategoryDTOResponse(updateCategory);
     }
 
+    @Test
+    @DisplayName("DELETE deleteCategoryDelete")
+    void shouldDeleteCategory(){
+        // Arrange
+        Long idExist = 1L;
+        Category categoryExist =  new Category(1L, "Electronicos", "Electronics devices", CategoryStatus.ACTIVE);
+        Category categorySoftDeleted = new Category(1L, "Electronicos", "Electronics devices", CategoryStatus.DELETED);
+
+        when(categoryServiceDomain.findByIdCategory(idExist)).thenReturn(categoryExist);
+        when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(categorySoftDeleted);
+        // Act
+        categoryService.deleteSofCategory(idExist);
+        // Assert
+
+        assertEquals(CategoryStatus.DELETED,categorySoftDeleted.getStatus());
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder( categoryServiceDomain);
+        inOrder.verify(categoryServiceDomain).findByIdCategory(idExist);
+        inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
+    }
+
 }
