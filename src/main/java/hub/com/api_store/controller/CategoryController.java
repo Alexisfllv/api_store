@@ -26,7 +26,7 @@ public class CategoryController {
 
     // GET
     @GetMapping("/{id}")
-    ResponseEntity<GenericResponse<CategoryDTOResponse>> getCategoryIdGet(@PathVariable Long id ){
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> getCategoryIdGet(@PathVariable Long id ){
         CategoryDTOResponse response = categoryService.getCategoryId(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, response)
@@ -34,7 +34,7 @@ public class CategoryController {
     }
 
     @GetMapping("/page")
-    ResponseEntity<GenericResponse<PageResponse<CategoryDTOResponse>>> getCategoryPageGet(
+    public ResponseEntity<GenericResponse<PageResponse<CategoryDTOResponse>>> getCategoryPageGet(
             @RequestParam (defaultValue = "0") int page,
             @RequestParam (defaultValue = "3") int size){
         PageResponse<CategoryDTOResponse> paged = categoryService.getPageListCategory(page, size);
@@ -43,7 +43,7 @@ public class CategoryController {
     }
 
     @GetMapping("/page/status/{status}")
-    ResponseEntity<GenericResponse<PageResponse<CategoryDTOResponse>>> getCategoryPageStatusGet(
+    public ResponseEntity<GenericResponse<PageResponse<CategoryDTOResponse>>> getCategoryPageStatusGet(
             @PathVariable String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size){
@@ -61,7 +61,7 @@ public class CategoryController {
 
     // POST
     @PostMapping
-    ResponseEntity<GenericResponse<CategoryDTOResponse>> addCategoryPost(@Valid @RequestBody CategoryDTORequest categoryDTORequest){
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> addCategoryPost(@Valid @RequestBody CategoryDTORequest categoryDTORequest){
         CategoryDTOResponse response = categoryService.addCategory(categoryDTORequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new GenericResponse<>(StatusApi.CREATED, response)
@@ -70,7 +70,7 @@ public class CategoryController {
 
     // PUT
     @PutMapping("/{id}")
-    ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryPut(@PathVariable Long id, @Valid @RequestBody CategoryDTOUpdate categoryDTOUpdate){
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryPut(@PathVariable Long id, @Valid @RequestBody CategoryDTOUpdate categoryDTOUpdate){
         CategoryDTOResponse response = categoryService.updateCategory(id, categoryDTOUpdate);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.UPDATED, response)
@@ -79,14 +79,14 @@ public class CategoryController {
 
     // Delete
     @DeleteMapping("/soft-delete/{id}")
-    ResponseEntity<Void> deleteCategoryDelete(@PathVariable Long id){
+    public ResponseEntity<Void> deleteCategoryDelete(@PathVariable Long id){
         categoryService.deleteSofCategory(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     // PATCH
     @PatchMapping("/{id}/status/{status}")
-    ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryStatusPatch(@PathVariable Long id, @PathVariable String status){
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryStatusPatch(@PathVariable Long id, @PathVariable String status){
         try {
             CategoryStatus upperStatus =  CategoryStatus.valueOf(status.toUpperCase());
             CategoryDTOResponse response = categoryService.updateCategoryStatus(id, upperStatus);
