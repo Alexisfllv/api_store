@@ -17,10 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +81,7 @@ public class CategoryServiceImplTest {
         // Arrange
         int page = 0;
         int size = 2;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
         Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
         Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
