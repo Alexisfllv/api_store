@@ -62,6 +62,19 @@ public class GlobalExceptionHandler {
         return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // Invalid Status Exception
+    @ExceptionHandler(InvalidStatusException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidStatusException(
+            HttpServletRequest req, InvalidStatusException ex){
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage(),
+                req.getRequestURI(),
+                "Invalid Status"
+        );
+        return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 
     // other exception
 
