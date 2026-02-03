@@ -3,6 +3,7 @@ package hub.com.api_store.controller;
 
 import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
+import hub.com.api_store.dto.category.CategoryDTOUpdate;
 import hub.com.api_store.service.CategoryService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
@@ -44,6 +45,15 @@ public class CategoryController {
         CategoryDTOResponse response = categoryService.addCategory(categoryDTORequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new GenericResponse<>(StatusApi.CREATED, response)
+        );
+    }
+
+    // PUT
+    @PutMapping("/{id}")
+    ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryPut(@PathVariable Long id, @Valid @RequestBody CategoryDTOUpdate categoryDTOUpdate){
+        CategoryDTOResponse response = categoryService.updateCategory(id, categoryDTOUpdate);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
         );
     }
 }
