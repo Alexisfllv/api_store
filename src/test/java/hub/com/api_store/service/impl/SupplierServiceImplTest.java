@@ -2,6 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
+import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.mapper.SupplierMapper;
 import hub.com.api_store.nums.CategoryStatus;
@@ -9,6 +10,7 @@ import hub.com.api_store.repo.SupplierRepo;
 import hub.com.api_store.service.domain.SupplierServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -27,7 +29,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SupplierServiceImplTest {
@@ -56,6 +59,9 @@ public class SupplierServiceImplTest {
 
     private SupplierDTORequest createSupplierDTORequest(String name , String phone, String email, String address) {
         return new SupplierDTORequest(name, phone, email, address);
+    }
+    private SupplierDTOUpdate createSupplierDTOUpdate(String name , String phone, String email, String address , CategoryStatus status) {
+        return new SupplierDTOUpdate(name, phone, email, address, status);
     }
 
 
@@ -159,5 +165,66 @@ public class SupplierServiceImplTest {
         inOrder.verify(supplierRepo).save(supplierempty);
         inOrder.verify(supplierMapper).toSupplierDTOResponse(supplier1);
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Nested
+    @DisplayName("PUT updateSupplier")
+    class UpdateSupplier{
+        @Test
+        @DisplayName("updateSupplier")
+        void updateSupplier(){
+            // Arrange
+            SupplierDTOUpdate update = createSupplierDTOUpdate("Demo","+51000000000","Demo@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+            Supplier updateEntity = createSupplier(null,"Demo","+51000000000","Demo@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+
+            Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
+            SupplierDTOResponse dto1 = createSupplierDTO(1L,"Demo","+51000000000","Demo@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+            when(supplierServiceDomain.findByIdSupplier(1L)).thenReturn(supplier1);
+            when(supplierRepo.save(any(Supplier.class))).thenReturn(updateEntity);
+            when(supplierMapper.toSupplierDTOResponse(updateEntity)).thenReturn(dto1);
+
+            // Act
+            SupplierDTOResponse result = supplierServiceImpl.updateSupplier(1L,update);
+
+            // Assert
+            assertAll(
+                    () -> assertEquals(dto1.id(),result.id()),
+                    () -> assertEquals(dto1.name(),result.name()),
+                    () -> assertEquals(dto1.phone(),result.phone()),
+                    () -> assertEquals(dto1.email(),result.email()),
+                    () -> assertEquals(dto1.address(),result.address()),
+                    () -> assertEquals(dto1.status(),result.status())
+            );
+
+            // InOrder & Verify
+            InOrder inOrder = Mockito.inOrder(supplierServiceDomain, supplierRepo,supplierMapper);
+            inOrder.verify(supplierServiceDomain).findByIdSupplier(1L);
+            inOrder.verify(supplierRepo).save(any(Supplier.class));
+            inOrder.verify(supplierMapper).toSupplierDTOResponse(updateEntity);
+            inOrder.verifyNoMoreInteractions();
+        }
+
+        @Test
+        @DisplayName("PUT updateSupplier - solo cambia status (mismo phone y email)")
+        void updateSupplierOnlyStatus(){
+            // Arrange - phone y email IGUALES
+            SupplierDTOUpdate update = createSupplierDTOUpdate("Demo","+51920287650","Fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
+            Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
+            SupplierDTOResponse dto1 = createSupplierDTO(1L,"Demo","+51920287650","Fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
+
+            when(supplierServiceDomain.findByIdSupplier(1L)).thenReturn(supplier1);
+            when(supplierRepo.save(any(Supplier.class))).thenReturn(supplier1);
+            when(supplierMapper.toSupplierDTOResponse(any())).thenReturn(dto1);
+
+            // Act
+            SupplierDTOResponse result = supplierServiceImpl.updateSupplier(1L,update);
+
+            // Assert
+            assertEquals(dto1, result);
+
+            // Verify - NO debe llamar validaciones
+            verify(supplierServiceDomain, never()).validateExistsByPhone(anyString());
+            verify(supplierServiceDomain, never()).validateExistsByEmail(anyString());
+        }
     }
 }
