@@ -2,6 +2,7 @@ package hub.com.api_store.service;
 
 import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
+import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
 import hub.com.api_store.util.page.PageResponse;
 import org.springframework.data.domain.PageRequest;
 
@@ -12,4 +13,7 @@ public interface SupplierService {
 
     // POST
     SupplierDTOResponse addSupplier(SupplierDTORequest supplierDTORequest);
+
+    // PUT
+    SupplierDTOResponse updateSupplier(Long id , SupplierDTOUpdate supplierDTOUpdate);
 }
