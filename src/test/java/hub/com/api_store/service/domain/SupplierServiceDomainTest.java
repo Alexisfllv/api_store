@@ -3,6 +3,7 @@ package hub.com.api_store.service.domain;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.exception.ResourceNotFoundException;
+import hub.com.api_store.exception.UniqueValidateException;
 import hub.com.api_store.nums.CategoryStatus;
 import hub.com.api_store.nums.ExceptionMessages;
 import hub.com.api_store.repo.SupplierRepo;
@@ -19,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SupplierServiceDomainTest {
@@ -81,6 +82,84 @@ public class SupplierServiceDomainTest {
             InOrder inOrder = Mockito.inOrder(supplierRepo);
             inOrder.verify(supplierRepo).findById(idNotExist);
             inOrder.verifyNoMoreInteractions();
+        }
+    }
+
+    @Nested
+    @DisplayName("Test validateExistsByPhone")
+    class ValidateExistsByPhone{
+        @Test
+        @DisplayName("Test validateExistsByPhone Success")
+        void testValidateExistsByPhoneSuccess(){
+            // Arrange
+            String phone = "912837465";
+            when(supplierRepo.existsByPhone(phone)).thenReturn(false);
+            // Act & Assert
+            assertDoesNotThrow(
+                    () -> supplierServiceDomain.validateExistsByPhone(phone)
+            );
+
+            // Verify
+            verify(supplierRepo).existsByPhone(phone);
+            verifyNoMoreInteractions(supplierRepo);
+        }
+
+        @Test
+        @DisplayName("Test validateExistsByPhone Throw")
+        void testValidateExistsByPhoneThrow(){
+            // Arrange
+            String phone = "912837465";
+            when( supplierRepo.existsByPhone(phone)).thenReturn(true);
+            // Act
+            UniqueValidateException ex = assertThrows(UniqueValidateException.class,
+                    () -> supplierServiceDomain.validateExistsByPhone(phone));
+            // Assert
+            assertAll(
+                    () -> assertNotNull(ex),
+                    () -> assertTrue(ex.getMessage().contains(ExceptionMessages.UNIQUE_EXC.message())),
+                    () -> assertTrue(ex.getMessage().contains(phone))
+            );
+            verify(supplierRepo).existsByPhone(phone);
+            verifyNoMoreInteractions(supplierRepo);
+        }
+    }
+
+    @Nested
+    @DisplayName("Test validateExistsByEmail")
+    class ValidateExistsByEmail{
+        @Test
+        @DisplayName("Test validateExistsByEmail Success")
+        void testValidateExistsByEmailSuccess(){
+            // Arrange
+            String email = "West@email.com";
+            when(supplierRepo.existsByEmail(email)).thenReturn(false);
+            // Act & Assert
+            assertDoesNotThrow( ()-> supplierServiceDomain.validateExistsByEmail(email));
+            // Verify
+            verify(supplierRepo).existsByEmail(email);
+            verifyNoMoreInteractions(supplierRepo);
+        }
+
+        @Test
+        @DisplayName("Test validateExistsByEmail Throw")
+        void testValidateExistsByEmailThrow(){
+            // Arrange
+            String email = "west@email.com";
+            when( supplierRepo.existsByEmail(email)).thenReturn(true);
+            // Act
+            UniqueValidateException ex = assertThrows(UniqueValidateException.class,
+                    () -> supplierServiceDomain.validateExistsByEmail(email));
+
+            // Assert
+            assertAll(
+                    () -> assertNotNull(ex),
+                    () -> assertTrue(ex.getMessage().contains(ExceptionMessages.UNIQUE_EXC.message())),
+                    () -> assertTrue(ex.getMessage().contains(email))
+            );
+
+            // Verify
+            verify(supplierRepo).existsByEmail(email);
+            verifyNoMoreInteractions(supplierRepo);
         }
     }
 }
