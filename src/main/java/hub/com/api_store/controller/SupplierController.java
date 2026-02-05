@@ -2,6 +2,7 @@ package hub.com.api_store.controller;
 
 import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
+import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
 import hub.com.api_store.service.SupplierService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
@@ -43,6 +44,16 @@ public class SupplierController {
         SupplierDTOResponse response = supplierService.addSupplier(supplierDTORequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new GenericResponse<>(StatusApi.CREATED, response)
+        );
+    }
+
+    // PUT
+    @PutMapping("/{id}")
+    public ResponseEntity<GenericResponse<SupplierDTOResponse>> updateSupplierPut(
+            @PathVariable Long id, @Valid @RequestBody SupplierDTOUpdate supplierDTOUpdate){
+        SupplierDTOResponse response = supplierService.updateSupplier(id, supplierDTOUpdate);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.UPDATED, response)
         );
     }
 }
