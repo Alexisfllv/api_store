@@ -1,8 +1,10 @@
 package hub.com.api_store.service.impl;
 
+import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.mapper.SupplierMapper;
+import hub.com.api_store.nums.CategoryStatus;
 import hub.com.api_store.repo.SupplierRepo;
 import hub.com.api_store.service.SupplierService;
 import hub.com.api_store.service.domain.SupplierServiceDomain;
@@ -45,5 +47,16 @@ public class SupplierServiceImpl implements SupplierService {
                 pageSupplier.getTotalElements(),
                 pageSupplier.getTotalPages()
         );
+    }
+
+    @Override
+    public SupplierDTOResponse addSupplier(SupplierDTORequest supplierDTORequest) {
+        Supplier supplier =  supplierMapper.toSupplier(supplierDTORequest);
+        supplierServiceDomain.validateExistsByPhone(supplier.getPhone());
+        supplierServiceDomain.validateExistsByEmail(supplier.getEmail());
+        supplier.setStatus(CategoryStatus.ACTIVE);
+        Supplier saved =  supplierRepo.save(supplier);
+        SupplierDTOResponse response = supplierMapper.toSupplierDTOResponse(saved);
+        return response;
     }
 }
