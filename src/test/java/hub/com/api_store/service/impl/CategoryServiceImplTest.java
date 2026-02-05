@@ -10,6 +10,7 @@ import hub.com.api_store.service.domain.CategoryServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -25,8 +26,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceImplTest {
@@ -145,34 +145,59 @@ public class CategoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
-    @Test
+    @Nested
     @DisplayName("PUT updateCategory")
-    void shouldUpdateCategory(){
-        // Arrange
-        Long idExist = 1L;
-        Category beforeCategory = new Category(1L, "Electronicos", "Elec", CategoryStatus.ACTIVE);
-        CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New",CategoryStatus.ACTIVE);
-        Category updateCategory = new Category(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
-        CategoryDTOResponse updateResponse = new CategoryDTOResponse(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
-        when(categoryServiceDomain.findByIdCategory(idExist)).thenReturn(beforeCategory);
-        when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(updateCategory);
-        when(categoryMapper.toCategoryDTOResponse(updateCategory)).thenReturn(updateResponse);
+    class updateCategory{
+        @Test
+        @DisplayName("PUT updateCategory")
+        void shouldUpdateCategory(){
+            // Arrange
+            Long idExist = 1L;
+            Category beforeCategory = new Category(1L, "Electronicos", "Elec", CategoryStatus.ACTIVE);
+            CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New",CategoryStatus.ACTIVE);
+            Category updateCategory = new Category(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+            CategoryDTOResponse updateResponse = new CategoryDTOResponse(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+            when(categoryServiceDomain.findByIdCategory(idExist)).thenReturn(beforeCategory);
+            when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(updateCategory);
+            when(categoryMapper.toCategoryDTOResponse(updateCategory)).thenReturn(updateResponse);
 
-        // Act
-        CategoryDTOResponse result = categoryService.updateCategory(idExist, update);
+            // Act
+            CategoryDTOResponse result = categoryService.updateCategory(idExist, update);
 
-        // Assert
-        assertAll(
-                () -> assertEquals(updateResponse.id(),result.id()),
-                () -> assertEquals(updateResponse.name(),result.name()),
-                () -> assertEquals(CategoryStatus.ACTIVE,result.status())
-        );
+            // Assert
+            assertAll(
+                    () -> assertEquals(updateResponse.id(),result.id()),
+                    () -> assertEquals(updateResponse.name(),result.name()),
+                    () -> assertEquals(CategoryStatus.ACTIVE,result.status())
+            );
 
-        // InOrder & Verify
-        InOrder inOrder = Mockito.inOrder(categoryMapper, categoryServiceDomain);
-        inOrder.verify(categoryServiceDomain).findByIdCategory(idExist);
-        inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
-        inOrder.verify(categoryMapper).toCategoryDTOResponse(updateCategory);
+            // InOrder & Verify
+            InOrder inOrder = Mockito.inOrder(categoryMapper, categoryServiceDomain);
+            inOrder.verify(categoryServiceDomain).findByIdCategory(idExist);
+            inOrder.verify(categoryServiceDomain).saveCategory(any(Category.class));
+            inOrder.verify(categoryMapper).toCategoryDTOResponse(updateCategory);
+        }
+
+        @Test
+        @DisplayName("PUT updateCategory name")
+        void shouldUpdateCategoryName(){
+            // Arrange
+            CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New",CategoryStatus.ACTIVE);
+            Category category1 = new Category(1L,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+            CategoryDTOResponse dto1 = new CategoryDTOResponse(1L,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+
+            when(categoryServiceDomain.findByIdCategory(1L)).thenReturn(category1);
+            when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(category1);
+            when(categoryMapper.toCategoryDTOResponse(category1)).thenReturn(dto1);
+            // Act
+            CategoryDTOResponse result = categoryService.updateCategory(1L, update);
+            // Assert
+            assertEquals(dto1,result);
+
+            // Verify
+            verify(categoryServiceDomain,never()).validateUniqueName(anyString());
+
+        }
     }
 
     @Test
