@@ -11,17 +11,17 @@ public record SupplierDTORequest(
         @Size(min = 2, max = 100, message = "{field.size.range}")
         String name,
 
-        @Schema(description = "Category phone.", example = "987654321", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Supplier phone.", example = "987654321", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "{field.required}")
         @Size(min = 2, max = 12, message = "{field.size.range}")
         String phone,
 
-        @Schema(description = "Category email.", example = "evans@email.com", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Supplier email.", example = "evans@email.com", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "{field.required}")
         @Size(min = 2, max = 100, message = "{field.size.range}")
         String email,
 
-        @Schema(description = "Category address.", example = "Lima...")
+        @Schema(description = "Supplier address.", example = "Lima...",requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "{field.required}")
         @Size(min = 2, max = 200, message = "{field.size.range}")
         String address
