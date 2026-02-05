@@ -1,5 +1,6 @@
 package hub.com.api_store.mapper;
 
+import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.nums.CategoryStatus;
@@ -57,5 +58,42 @@ public class SupplierMapperTest {
             // Assert
             assertNull(result);
         }
+    }
+
+    @Nested
+    @DisplayName("Test toEntity entity <- request")
+    class toEntity{
+
+        @Test
+        @DisplayName("toEntity")
+        public void toEntity(){
+            // Arrange
+
+            SupplierDTORequest supplierDTORequest = new SupplierDTORequest(
+                    "Fring","987654321","fring@email.com","Lima-Lima");
+
+            Supplier supplier = new Supplier
+                    (null,"Fring","+51920287650","Fring@email.com","Lima-Lima", null);
+            // Act
+            Supplier result = supplierMapper.toSupplier(supplierDTORequest);
+
+            // Assert
+            assertAll(
+                    () -> assertEquals(supplierDTORequest.name(),result.getName()),
+                    () -> assertEquals(supplierDTORequest.phone(),result.getPhone()),
+                    () -> assertEquals(supplierDTORequest.email(),result.getEmail()),
+                    () -> assertEquals(supplierDTORequest.address() ,result.getAddress())
+            );
+        }
+
+        @Test
+        @DisplayName("toEntity null")
+        public void toEntityNull(){
+            // Act
+            Supplier result = supplierMapper.toSupplier(null);
+            // Assert
+            assertNull(result);
+        }
+
     }
 }

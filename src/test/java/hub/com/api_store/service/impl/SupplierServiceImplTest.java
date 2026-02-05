@@ -1,5 +1,6 @@
 package hub.com.api_store.service.impl;
 
+import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.mapper.SupplierMapper;
@@ -51,6 +52,10 @@ public class SupplierServiceImplTest {
 
     private SupplierDTOResponse createSupplierDTO(Long id, String name, String phone, String email, String address, CategoryStatus status) {
         return new SupplierDTOResponse(id, name, phone, email, address, status);
+    }
+
+    private SupplierDTORequest createSupplierDTORequest(String name , String phone, String email, String address) {
+        return new SupplierDTORequest(name, phone, email, address);
     }
 
 
@@ -121,6 +126,38 @@ public class SupplierServiceImplTest {
         inOrder.verify(supplierRepo).findAll(pageRequest);
         inOrder.verify(supplierMapper).toSupplierDTOResponse(supplier1);
         inOrder.verify(supplierMapper).toSupplierDTOResponse(supplier2);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("POST addSupplier")
+    void addSupplier(){
+        // Arrange
+        SupplierDTORequest supplierDTORequest = createSupplierDTORequest("Fring","+51920287650","Fring@email.com","Lima-Lima");
+        Supplier supplierempty = createSupplier(null,"Fring","+51920287650","Fring@email.com","Lima-Lima",null);
+        Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
+        SupplierDTOResponse dto1 = createSupplierDTO(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
+
+        when(supplierMapper.toSupplier(supplierDTORequest)).thenReturn(supplierempty);
+        when(supplierRepo.save(supplierempty)).thenReturn(supplier1);
+        when(supplierMapper.toSupplierDTOResponse(supplier1)).thenReturn(dto1);
+        // Act
+        SupplierDTOResponse result = supplierServiceImpl.addSupplier(supplierDTORequest);
+        // Assert
+        assertAll(
+                () -> assertEquals(dto1.id(),result.id()),
+                () -> assertEquals(dto1.name(),result.name()),
+                () -> assertEquals(dto1.phone(),result.phone()),
+                () -> assertEquals(dto1.email(),result.email()),
+                () -> assertEquals(dto1.address(),result.address()),
+                () -> assertEquals(dto1.status(),result.status())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(supplierRepo, supplierMapper);
+        inOrder.verify(supplierMapper).toSupplier(supplierDTORequest);
+        inOrder.verify(supplierRepo).save(supplierempty);
+        inOrder.verify(supplierMapper).toSupplierDTOResponse(supplier1);
         inOrder.verifyNoMoreInteractions();
     }
 }
