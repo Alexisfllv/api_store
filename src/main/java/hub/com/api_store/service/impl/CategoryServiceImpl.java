@@ -81,12 +81,16 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDTOResponse updateCategory(Long id, CategoryDTOUpdate categoryDTOUpdate) {
         Category categoryExist = categoryServiceDomain.findByIdCategory(id);
+
+        if (!categoryExist.getName().equals(categoryDTOUpdate.name())){
+            categoryServiceDomain.validateUniqueName(categoryExist.getName());
+        }
         // set
         categoryExist.setName(categoryDTOUpdate.name());
         categoryExist.setDescription(categoryDTOUpdate.description());
         categoryExist.setStatus(categoryDTOUpdate.status());
 
-        categoryServiceDomain.validateUniqueName(categoryExist.getName());
+
 
         Category categorySaved =  categoryServiceDomain.saveCategory(categoryExist);
         CategoryDTOResponse response = categoryMapper.toCategoryDTOResponse(categorySaved);
