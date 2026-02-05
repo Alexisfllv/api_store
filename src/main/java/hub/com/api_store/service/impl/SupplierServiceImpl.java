@@ -25,6 +25,8 @@ public class SupplierServiceImpl implements SupplierService {
     // strag
     private final SupplierRepo supplierRepo;
 
+
+    // GET
     @Override
     public SupplierDTOResponse getSupplierId(Long id) {
         Supplier supplierExist = supplierServiceDomain.findByIdSupplier(id);
@@ -49,6 +51,8 @@ public class SupplierServiceImpl implements SupplierService {
         );
     }
 
+
+    // POST
     @Override
     public SupplierDTOResponse addSupplier(SupplierDTORequest supplierDTORequest) {
         Supplier supplier =  supplierMapper.toSupplier(supplierDTORequest);
