@@ -24,11 +24,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -246,5 +246,39 @@ public class SupplierServiceImplTest {
         inOrder.verify(supplierServiceDomain).findByIdSupplier(idSupplier);
         inOrder.verify(supplierRepo).save(any(Supplier.class));
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("GET getListSupplierByName")
+    void getListSupplierByName(){
+        // Arrange
+        String name = "We";
+        Integer limit = 10;
+        Supplier sup1 = createSupplier(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+        Supplier sup2 = createSupplier(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.INACTIVE);
+        SupplierDTOResponse supd1 = createSupplierDTO(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+        SupplierDTOResponse supd2 = createSupplierDTO(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.INACTIVE);
+
+        List<Supplier> suppliers = List.of(sup1,sup2);
+        when(supplierRepo.findByNameContainingIgnoreCase(name)).thenReturn(suppliers);
+        when(supplierMapper.toSupplierDTOResponse(sup1)).thenReturn(supd1);
+        when(supplierMapper.toSupplierDTOResponse(sup2)).thenReturn(supd2);
+        // Act
+        List<SupplierDTOResponse> resultList = supplierServiceImpl.getListSupplierByName(name,limit);
+        // Assert
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(2,resultList.size()),
+                () -> assertEquals("Well", resultList.get(0).name()),
+                () -> assertEquals("West", resultList.get(1).name())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(supplierRepo, supplierMapper);
+        inOrder.verify(supplierRepo).findByNameContainingIgnoreCase(name);
+        inOrder.verify(supplierMapper).toSupplierDTOResponse(sup1);
+        inOrder.verify(supplierMapper).toSupplierDTOResponse(sup2);
+        inOrder.verifyNoMoreInteractions();
+
     }
 }
