@@ -227,4 +227,24 @@ public class SupplierServiceImplTest {
             verify(supplierServiceDomain, never()).validateExistsByEmail(anyString());
         }
     }
+
+    @Test
+    @DisplayName("DELETE deleteSupplierDelete")
+    void deleteSupplierDelete(){
+        // Arrange
+        Long idSupplier = 1L;
+        Supplier supplierExist = createSupplier(1L,"West","+51920287650","west@email.com","Lima...",CategoryStatus.ACTIVE);
+        Supplier supplierSofDelete = createSupplier(1L,"West","+51920287650","west@email.com","Lima...",CategoryStatus.DELETED);
+        when(supplierServiceDomain.findByIdSupplier(idSupplier)).thenReturn(supplierExist);
+        when(supplierRepo.save(any(Supplier.class))).thenReturn(supplierSofDelete);
+        // Act
+        supplierServiceImpl.deleteSupplier(idSupplier);
+        // Assert
+        assertEquals(CategoryStatus.DELETED,supplierSofDelete.getStatus());
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(supplierServiceDomain, supplierRepo);
+        inOrder.verify(supplierServiceDomain).findByIdSupplier(idSupplier);
+        inOrder.verify(supplierRepo).save(any(Supplier.class));
+        inOrder.verifyNoMoreInteractions();
+    }
 }
