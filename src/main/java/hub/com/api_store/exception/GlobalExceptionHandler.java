@@ -1,6 +1,7 @@
 package hub.com.api_store.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -73,6 +74,29 @@ public class GlobalExceptionHandler {
                 "Invalid Status"
         );
         return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // RequestParam
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+            HttpServletRequest req, ConstraintViolationException ex) {
+
+        String errorMsg = ex.getConstraintViolations()
+                .stream()
+                .map(v -> {
+                    String field = v.getPropertyPath().toString();
+                    field = field.substring(field.lastIndexOf('.') + 1);
+                    return field + ": " + v.getMessage();
+                })
+                .collect(Collectors.joining(" | "));
+
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                errorMsg,
+                req.getRequestURI(),
+                "Constraint Violation"
+        );
+        return ResponseEntity.badRequest().body(response);
     }
 
 
