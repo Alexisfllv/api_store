@@ -90,4 +90,11 @@ public class SupplierServiceImpl implements SupplierService {
         SupplierDTOResponse response = supplierMapper.toSupplierDTOResponse(updated);
         return response;
     }
+
+    @Override
+    public void deleteSupplier(Long id) {
+        Supplier supplierExist = supplierServiceDomain.findByIdSupplier(id);
+        supplierExist.setStatus(CategoryStatus.DELETED);
+        supplierRepo.save(supplierExist);
+    }
 }

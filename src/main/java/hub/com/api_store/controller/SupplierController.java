@@ -56,4 +56,11 @@ public class SupplierController {
                 new GenericResponse<>(StatusApi.UPDATED, response)
         );
     }
+
+    // DELETE
+    @DeleteMapping("/soft-delete/{id}")
+    public ResponseEntity<Void> deleteSupplierDelete(@PathVariable Long id){
+        supplierService.deleteSupplier(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

@@ -16,4 +16,7 @@ public interface SupplierService {
 
     // PUT
     SupplierDTOResponse updateSupplier(Long id , SupplierDTOUpdate supplierDTOUpdate);
+
+    // DELETE
+    void deleteSupplier(Long id);
 }
