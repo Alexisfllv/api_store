@@ -8,13 +8,20 @@ import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/suppliers")
 public class SupplierController {
     private final SupplierService supplierService;
@@ -35,6 +42,22 @@ public class SupplierController {
         PageResponse<SupplierDTOResponse> response = supplierService.getPageListSupplier(page, size);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<GenericResponse<List<SupplierDTOResponse>>> getListSupplierByNameGet(
+            @RequestParam(defaultValue = "abcd")
+            @NotBlank(message = "{field.required}")
+            @Size(min = 2, max = 100, message = "{field.size.range}")
+            String name,
+
+            @RequestParam(defaultValue = "50")
+            @Positive(message = "{field.must.be.positive}")
+            int limit){
+        List<SupplierDTOResponse> response = supplierService.getListSupplierByName(name, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS,response)
         );
     }
 
