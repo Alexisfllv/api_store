@@ -17,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -52,6 +54,16 @@ public class SupplierServiceImpl implements SupplierService {
                 pageSupplier.getTotalElements(),
                 pageSupplier.getTotalPages()
         );
+    }
+
+    @Override
+    public List<SupplierDTOResponse> getListSupplierByName(String name , Integer limit) {
+        List<Supplier> supplierList = supplierRepo.findByNameContainingIgnoreCase(name.trim());
+        return supplierList
+                .stream()
+                .map(supplierMapper::toSupplierDTOResponse)
+                .limit(limit)
+                .toList();
     }
 
 
