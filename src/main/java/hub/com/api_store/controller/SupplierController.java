@@ -3,14 +3,13 @@ package hub.com.api_store.controller;
 import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
+import hub.com.api_store.nums.CategoryStatus;
 import hub.com.api_store.service.SupplierService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +44,7 @@ public class SupplierController {
         );
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/name")
     public ResponseEntity<GenericResponse<List<SupplierDTOResponse>>> getListSupplierByNameGet(
             @RequestParam(defaultValue = "abcd")
             @NotBlank(message = "{field.required}")
@@ -56,6 +55,20 @@ public class SupplierController {
             @Positive(message = "{field.must.be.positive}")
             int limit){
         List<SupplierDTOResponse> response = supplierService.getListSupplierByName(name, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS,response)
+        );
+    }
+
+    @GetMapping("/search/status")
+    public ResponseEntity<GenericResponse<List<SupplierDTOResponse>>> getListSupplierStatusGet(
+            @RequestParam(defaultValue = "active")
+            @Pattern(regexp = "ACTIVE|INACTIVE|active|inactive|DELETED|deleted", message = "Status debe ser ACTIVE, INACTIVE & DELTED")
+            String status,
+            @RequestParam(defaultValue = "100")
+            @Min(1) @Max(500)
+            Integer limit){
+        List<SupplierDTOResponse> response = supplierService.getListSupplierByStatus(status, limit);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS,response)
         );
