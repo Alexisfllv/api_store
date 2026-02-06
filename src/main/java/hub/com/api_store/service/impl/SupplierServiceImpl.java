@@ -66,6 +66,18 @@ public class SupplierServiceImpl implements SupplierService {
                 .toList();
     }
 
+    @Override
+    public List<SupplierDTOResponse> getListSupplierByStatus(String status, Integer limit) {
+        CategoryStatus enumStatus = CategoryStatus.valueOf(status.toUpperCase());
+
+        List<Supplier> supplierList = supplierRepo.findByStatus(enumStatus);
+        return supplierList
+                .stream()
+                .map(supplierMapper::toSupplierDTOResponse)
+                .limit(limit)
+                .toList();
+    }
+
 
     // POST
     @Override

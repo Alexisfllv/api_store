@@ -281,4 +281,38 @@ public class SupplierServiceImplTest {
         inOrder.verifyNoMoreInteractions();
 
     }
+
+    @Test
+    @DisplayName("GET getListSupplierStatus")
+    void getListSupplierStatus(){
+        // Arrange
+        String status = "ACTIVE";
+        Integer limit = 10;
+        CategoryStatus enumStatus =  CategoryStatus.valueOf(status.toUpperCase());
+        Supplier sup1 = createSupplier(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+        Supplier sup2 = createSupplier(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.ACTIVE);
+        SupplierDTOResponse supd1 = createSupplierDTO(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+        SupplierDTOResponse supd2 = createSupplierDTO(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.ACTIVE);
+
+        List<Supplier> suppliers = List.of(sup1,sup2);
+        when(supplierRepo.findByStatus(enumStatus)).thenReturn(suppliers);
+        when(supplierMapper.toSupplierDTOResponse(sup1)).thenReturn(supd1);
+        when(supplierMapper.toSupplierDTOResponse(sup2)).thenReturn(supd2);
+        // Act
+        List<SupplierDTOResponse> resultList = supplierServiceImpl.getListSupplierByStatus(status,limit);
+        // Assert
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(2,resultList.size()),
+                () -> assertEquals(CategoryStatus.ACTIVE,resultList.get(0).status()),
+                () -> assertEquals(CategoryStatus.ACTIVE,resultList.get(1).status())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(supplierRepo, supplierMapper);
+        inOrder.verify(supplierRepo).findByStatus(enumStatus);
+        inOrder.verify(supplierMapper).toSupplierDTOResponse(sup1);
+        inOrder.verify(supplierMapper).toSupplierDTOResponse(sup2);
+        inOrder.verifyNoMoreInteractions();
+    }
 }
