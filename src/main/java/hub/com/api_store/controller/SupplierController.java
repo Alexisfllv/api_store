@@ -62,7 +62,7 @@ public class SupplierController {
 
     @GetMapping("/search/status")
     public ResponseEntity<GenericResponse<List<SupplierDTOResponse>>> getListSupplierStatusGet(
-            @RequestParam(defaultValue = "active")
+            @RequestParam(defaultValue = "ACTIVE")
             @Pattern(regexp = "ACTIVE|INACTIVE|active|inactive|DELETED|deleted", message = "Status debe ser ACTIVE, INACTIVE & DELTED")
             String status,
             @RequestParam(defaultValue = "100")
@@ -98,5 +98,19 @@ public class SupplierController {
     public ResponseEntity<Void> deleteSupplierDelete(@PathVariable Long id){
         supplierService.deleteSupplier(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    // PATCH
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<GenericResponse<SupplierDTOResponse>> changeStatusSupplierPatch(
+        @PathVariable Long id,
+        @RequestParam(defaultValue = "ACTIVE")
+        @Pattern(regexp = "ACTIVE|INACTIVE|active|inactive|DELETED|deleted", message = "Status debe ser ACTIVE, INACTIVE & DELTED")
+        String status){
+        CategoryStatus enumStatus = CategoryStatus.valueOf(status.toUpperCase());
+        SupplierDTOResponse response = supplierService.changeStatusSupplier(id, enumStatus);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.UPDATED, response)
+        );
     }
 }

@@ -315,4 +315,39 @@ public class SupplierServiceImplTest {
         inOrder.verify(supplierMapper).toSupplierDTOResponse(sup2);
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    @DisplayName("PATCH changeStatusSupplier")
+    void changeStatusSupplier(){
+        // Arrange
+        Long id = 1L;
+        String status = "INACTIVE";
+        CategoryStatus enumStatus = CategoryStatus.valueOf(status.toUpperCase());
+        Supplier supplierExist = createSupplier(1L,"Fring","+51920287650","fring@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+        Supplier supplierUpdated = createSupplier(1L,"Fring","+51920287650","fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
+        SupplierDTOResponse supplierDTOResponse = createSupplierDTO(1L,"Fring","+51920287650","fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
+        when(supplierServiceDomain.findByIdSupplier(id)).thenReturn(supplierExist);
+        when(supplierRepo.save(supplierExist)).thenReturn(supplierUpdated);
+        when(supplierMapper.toSupplierDTOResponse(supplierUpdated)).thenReturn(supplierDTOResponse);
+
+        // Act
+        SupplierDTOResponse result = supplierServiceImpl.changeStatusSupplier(id, enumStatus);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(supplierUpdated.getId(), result.id()),
+                () -> assertEquals(supplierUpdated.getName(), result.name()),
+                () -> assertEquals(supplierUpdated.getPhone(), result.phone()),
+                () -> assertEquals(supplierUpdated.getEmail(), result.email()),
+                () -> assertEquals(supplierUpdated.getAddress(), result.address()),
+                () -> assertEquals(supplierUpdated.getStatus(), result.status())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(supplierServiceDomain, supplierRepo, supplierMapper);
+        inOrder.verify(supplierServiceDomain).findByIdSupplier(id);
+        inOrder.verify(supplierRepo).save(any(Supplier.class));
+        inOrder.verify(supplierMapper).toSupplierDTOResponse(supplierUpdated);
+        inOrder.verifyNoMoreInteractions();
+    }
 }
