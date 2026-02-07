@@ -2,6 +2,7 @@ package hub.com.api_store.entity;
 
 
 import hub.com.api_store.nums.GlobalStatus;
+import hub.com.api_store.nums.GlobalUnit;
 import hub.com.api_store.util.auditing.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,8 +28,9 @@ public class Product extends BaseEntity {
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(nullable = false, length = 50)
-    private String unit;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private GlobalUnit unit;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
