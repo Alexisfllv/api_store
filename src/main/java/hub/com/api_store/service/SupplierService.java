@@ -22,4 +22,7 @@ public interface SupplierService {
 
     // DELETE
     void deleteSupplier(Long id);
+
+    // PATCH
+    SupplierDTOResponse changeStatusSupplier(Long id, CategoryStatus status);
 }
