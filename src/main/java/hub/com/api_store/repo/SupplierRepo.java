@@ -1,7 +1,7 @@
 package hub.com.api_store.repo;
 
 import hub.com.api_store.entity.Supplier;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,5 +17,5 @@ public interface SupplierRepo extends JpaRepository<Supplier,Long> {
     List<Supplier> findByNameContainingIgnoreCase(String nombre);
 
     // ListSupplierByStatus
-    List<Supplier> findByStatus(CategoryStatus status);
+    List<Supplier> findByStatus(GlobalStatus status);
 }

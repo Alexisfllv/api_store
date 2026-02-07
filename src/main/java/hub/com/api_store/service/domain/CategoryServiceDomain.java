@@ -1,11 +1,9 @@
 package hub.com.api_store.service.domain;
 
-import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.exception.ResourceNotFoundException;
 import hub.com.api_store.exception.UniqueValidateException;
-import hub.com.api_store.mapper.CategoryMapper;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.nums.ExceptionMessages;
 import hub.com.api_store.repo.CategoryRepo;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +41,7 @@ public class CategoryServiceDomain {
     }
 
     // pageAllCategoryByStatus
-    public Page<Category> findAllPageByStatus(CategoryStatus status, Pageable pageable) {
+    public Page<Category> findAllPageByStatus(GlobalStatus status, Pageable pageable) {
         return categoryRepo.findByStatus(status, pageable);
     }
 

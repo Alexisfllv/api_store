@@ -5,7 +5,7 @@ import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.dto.category.CategoryDTOUpdate;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.mapper.CategoryMapper;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.service.domain.CategoryServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,8 +45,8 @@ public class CategoryServiceImplTest {
     @BeforeEach
     public void setup(){
         idExist = 1L;
-        category = new Category(1L,"name","description", CategoryStatus.ACTIVE);
-        categoryDTOResponse = new CategoryDTOResponse(1L,"name","description", CategoryStatus.ACTIVE);
+        category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+        categoryDTOResponse = new CategoryDTOResponse(1L,"name","description", GlobalStatus.ACTIVE);
     }
 
     @Test
@@ -83,12 +81,12 @@ public class CategoryServiceImplTest {
         int size = 2;
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
-        Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
-        Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+        Category cat1 = new Category(1L, "Electronics", "Elec", GlobalStatus.ACTIVE);
+        Category cat2 = new Category(2L, "Books", "Bo", GlobalStatus.ACTIVE);
         List<Category> cats = List.of(cat1, cat2);
 
-        CategoryDTOResponse dto1 = new CategoryDTOResponse(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
-        CategoryDTOResponse dto2 = new CategoryDTOResponse(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+        CategoryDTOResponse dto1 = new CategoryDTOResponse(1L, "Electronics", "Elec", GlobalStatus.ACTIVE);
+        CategoryDTOResponse dto2 = new CategoryDTOResponse(2L, "Books", "Bo", GlobalStatus.ACTIVE);
 
 
         Page<Category> categoryPage = new PageImpl<>(cats,pageable,10);
@@ -120,8 +118,8 @@ public class CategoryServiceImplTest {
         // Arrange
         CategoryDTORequest request = new CategoryDTORequest("Electronics", "Electronic devices");
         Category unmappedCategory = new Category(null, "Electronics", "Electronic devices", null);
-        Category savedCategory = new Category(1L, "Electronics", "Electronic devices", CategoryStatus.ACTIVE);
-        CategoryDTOResponse expectedResponse = new CategoryDTOResponse(1L, "Electronics", "Electronic devices", CategoryStatus.ACTIVE);
+        Category savedCategory = new Category(1L, "Electronics", "Electronic devices", GlobalStatus.ACTIVE);
+        CategoryDTOResponse expectedResponse = new CategoryDTOResponse(1L, "Electronics", "Electronic devices", GlobalStatus.ACTIVE);
 
         when(categoryMapper.toCategory(request)).thenReturn(unmappedCategory);
         when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(savedCategory);
@@ -134,7 +132,7 @@ public class CategoryServiceImplTest {
                 () -> assertEquals(1L,result.id()),
                 () -> assertEquals("Electronics", result.name()),
                 () -> assertEquals("Electronic devices",result.description()),
-                () -> assertEquals(CategoryStatus.ACTIVE,result.status())
+                () -> assertEquals(GlobalStatus.ACTIVE,result.status())
         );
 
         // InOrder & Verify
@@ -153,10 +151,10 @@ public class CategoryServiceImplTest {
         void shouldUpdateCategory(){
             // Arrange
             Long idExist = 1L;
-            Category beforeCategory = new Category(1L, "Electronicos", "Elec", CategoryStatus.ACTIVE);
-            CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New",CategoryStatus.ACTIVE);
-            Category updateCategory = new Category(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
-            CategoryDTOResponse updateResponse = new CategoryDTOResponse(idExist,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+            Category beforeCategory = new Category(1L, "Electronicos", "Elec", GlobalStatus.ACTIVE);
+            CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New", GlobalStatus.ACTIVE);
+            Category updateCategory = new Category(idExist,"Electronicos New","Elec New", GlobalStatus.ACTIVE);
+            CategoryDTOResponse updateResponse = new CategoryDTOResponse(idExist,"Electronicos New","Elec New", GlobalStatus.ACTIVE);
             when(categoryServiceDomain.findByIdCategory(idExist)).thenReturn(beforeCategory);
             when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(updateCategory);
             when(categoryMapper.toCategoryDTOResponse(updateCategory)).thenReturn(updateResponse);
@@ -168,7 +166,7 @@ public class CategoryServiceImplTest {
             assertAll(
                     () -> assertEquals(updateResponse.id(),result.id()),
                     () -> assertEquals(updateResponse.name(),result.name()),
-                    () -> assertEquals(CategoryStatus.ACTIVE,result.status())
+                    () -> assertEquals(GlobalStatus.ACTIVE,result.status())
             );
 
             // InOrder & Verify
@@ -182,9 +180,9 @@ public class CategoryServiceImplTest {
         @DisplayName("PUT updateCategory name")
         void shouldUpdateCategoryName(){
             // Arrange
-            CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New",CategoryStatus.ACTIVE);
-            Category category1 = new Category(1L,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
-            CategoryDTOResponse dto1 = new CategoryDTOResponse(1L,"Electronicos New","Elec New",CategoryStatus.ACTIVE);
+            CategoryDTOUpdate update = new CategoryDTOUpdate("Electronicos New","Elec New", GlobalStatus.ACTIVE);
+            Category category1 = new Category(1L,"Electronicos New","Elec New", GlobalStatus.ACTIVE);
+            CategoryDTOResponse dto1 = new CategoryDTOResponse(1L,"Electronicos New","Elec New", GlobalStatus.ACTIVE);
 
             when(categoryServiceDomain.findByIdCategory(1L)).thenReturn(category1);
             when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(category1);
@@ -205,8 +203,8 @@ public class CategoryServiceImplTest {
     void shouldDeleteCategory(){
         // Arrange
         Long idExist = 1L;
-        Category categoryExist =  new Category(1L, "Electronicos", "Electronics devices", CategoryStatus.ACTIVE);
-        Category categorySoftDeleted = new Category(1L, "Electronicos", "Electronics devices", CategoryStatus.DELETED);
+        Category categoryExist =  new Category(1L, "Electronicos", "Electronics devices", GlobalStatus.ACTIVE);
+        Category categorySoftDeleted = new Category(1L, "Electronicos", "Electronics devices", GlobalStatus.DELETED);
 
         when(categoryServiceDomain.findByIdCategory(idExist)).thenReturn(categoryExist);
         when(categoryServiceDomain.saveCategory(any(Category.class))).thenReturn(categorySoftDeleted);
@@ -214,7 +212,7 @@ public class CategoryServiceImplTest {
         categoryService.deleteSofCategory(idExist);
         // Assert
 
-        assertEquals(CategoryStatus.DELETED,categorySoftDeleted.getStatus());
+        assertEquals(GlobalStatus.DELETED,categorySoftDeleted.getStatus());
         // InOrder & Verify
         InOrder inOrder = Mockito.inOrder( categoryServiceDomain);
         inOrder.verify(categoryServiceDomain).findByIdCategory(idExist);
@@ -227,13 +225,13 @@ public class CategoryServiceImplTest {
         // Arrange
         int page = 0;
         int size = 2;
-        CategoryStatus status = CategoryStatus.ACTIVE;
+        GlobalStatus status = GlobalStatus.ACTIVE;
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
-        Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
-        Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+        Category cat1 = new Category(1L, "Electronics", "Elec", GlobalStatus.ACTIVE);
+        Category cat2 = new Category(2L, "Books", "Bo", GlobalStatus.ACTIVE);
         List<Category> cats = List.of(cat1, cat2);
-        CategoryDTOResponse dto1 = new CategoryDTOResponse(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
-        CategoryDTOResponse dto2 = new CategoryDTOResponse(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+        CategoryDTOResponse dto1 = new CategoryDTOResponse(1L, "Electronics", "Elec", GlobalStatus.ACTIVE);
+        CategoryDTOResponse dto2 = new CategoryDTOResponse(2L, "Books", "Bo", GlobalStatus.ACTIVE);
         Page<Category> categoryPage = new PageImpl(cats, pageable, 10);
         when(categoryServiceDomain.findAllPageByStatus(status, pageable)).thenReturn(categoryPage);
         when(categoryMapper.toCategoryDTOResponse(cat1)).thenReturn(dto1);
@@ -261,8 +259,8 @@ public class CategoryServiceImplTest {
     void shouldPatchCategoryStatusPatch(){
         // Arrange
         Long idExist = 1L;
-        CategoryStatus statusUpdated = CategoryStatus.INACTIVE;
-        Category categoryExist = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
+        GlobalStatus statusUpdated = GlobalStatus.INACTIVE;
+        Category categoryExist = new Category(1L, "Electronics", "Elec", GlobalStatus.ACTIVE);
         Category categoryUpdated = new Category(1L, "Electronics", "Elec", statusUpdated);
         CategoryDTOResponse responseUpdated =  new CategoryDTOResponse(1L, "Electronics", "Elec", statusUpdated);
 

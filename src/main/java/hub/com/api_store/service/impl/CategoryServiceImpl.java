@@ -5,13 +5,12 @@ import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.dto.category.CategoryDTOUpdate;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.mapper.CategoryMapper;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.service.CategoryService;
 import hub.com.api_store.service.domain.CategoryServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.valves.rewrite.InternalRewriteMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -52,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public PageResponse<CategoryDTOResponse> getPageListCategoryByStatus(CategoryStatus status, int page, int size) {
+    public PageResponse<CategoryDTOResponse> getPageListCategoryByStatus(GlobalStatus status, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
         Page<Category> categoryPage = categoryServiceDomain.findAllPageByStatus(status, pageRequest);
         return new PageResponse<>(
@@ -72,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTOResponse addCategory(CategoryDTORequest categoryDTORequest) {
         Category category = categoryMapper.toCategory(categoryDTORequest);
         categoryServiceDomain.validateUniqueName(category.getName());
-        category.setStatus(CategoryStatus.ACTIVE);
+        category.setStatus(GlobalStatus.ACTIVE);
         Category categorySaved =  categoryServiceDomain.saveCategory(category);
         CategoryDTOResponse response = categoryMapper.toCategoryDTOResponse(categorySaved);
         return response;
@@ -100,14 +99,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteSofCategory(Long id) {
         Category categoryExist = categoryServiceDomain.findByIdCategory(id);
-        categoryExist.setStatus(CategoryStatus.DELETED);
+        categoryExist.setStatus(GlobalStatus.DELETED);
         categoryServiceDomain.saveCategory(categoryExist);
     }
 
     // PATCH
 
     @Override
-    public CategoryDTOResponse updateCategoryStatus(Long id, CategoryStatus newStatus) {
+    public CategoryDTOResponse updateCategoryStatus(Long id, GlobalStatus newStatus) {
         Category categoryExist = categoryServiceDomain.findByIdCategory(id);
         categoryExist.setStatus(newStatus);
         Category updatedCategory = categoryServiceDomain.saveCategory(categoryExist);

@@ -1,11 +1,9 @@
 package hub.com.api_store.service.domain;
 
-import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.exception.ResourceNotFoundException;
 import hub.com.api_store.exception.UniqueValidateException;
-import hub.com.api_store.mapper.CategoryMapper;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.nums.ExceptionMessages;
 import hub.com.api_store.repo.CategoryRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +43,7 @@ public class CategoryServiceDomainTest {
     public void setup(){
         idExist = 1L;
         idNotExist = 99L;
-        category = new Category(1L,"name","description", CategoryStatus.ACTIVE);
+        category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
     }
 
     @Nested
@@ -105,8 +103,8 @@ public class CategoryServiceDomainTest {
             int size = 2;
             Pageable pageable = PageRequest.of(page, size);
 
-            Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
-            Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+            Category cat1 = new Category(1L, "Electronics", "Elec", GlobalStatus.ACTIVE);
+            Category cat2 = new Category(2L, "Books", "Bo", GlobalStatus.ACTIVE);
             List<Category> cats = List.of(cat1, cat2);
 
             Page<Category> expected = new PageImpl<>(cats, pageable, 10); // total=10 en BD
@@ -209,7 +207,7 @@ public class CategoryServiceDomainTest {
                 () -> assertEquals(1L,result.getId()),
                 () -> assertEquals(emptyCategory.getName(), result.getName()),
                 () -> assertEquals(emptyCategory.getDescription(), result.getDescription()),
-                () -> assertEquals(CategoryStatus.ACTIVE, result.getStatus())
+                () -> assertEquals(GlobalStatus.ACTIVE, result.getStatus())
         );
 
         // Verify
@@ -227,10 +225,10 @@ public class CategoryServiceDomainTest {
             // Arrange
             int page = 0;
             int size = 2;
-            CategoryStatus status = CategoryStatus.ACTIVE;
+            GlobalStatus status = GlobalStatus.ACTIVE;
             Pageable pageable = PageRequest.of(page, size);
-            Category cat1 = new Category(1L, "Electronics", "Elec", CategoryStatus.ACTIVE);
-            Category cat2 = new Category(2L, "Books", "Bo", CategoryStatus.ACTIVE);
+            Category cat1 = new Category(1L, "Electronics", "Elec", GlobalStatus.ACTIVE);
+            Category cat2 = new Category(2L, "Books", "Bo", GlobalStatus.ACTIVE);
             List<Category> cats = List.of(cat1, cat2);
             Page<Category> expected = new PageImpl<>(cats, pageable, 10);
             when(categoryRepo.findByStatus(status, pageable)).thenReturn(expected);
@@ -250,7 +248,7 @@ public class CategoryServiceDomainTest {
             // Arrange
             int page = 0;
             int size = 2;
-            CategoryStatus status = CategoryStatus.ACTIVE;
+            GlobalStatus status = GlobalStatus.ACTIVE;
             Pageable pageable = PageRequest.of(page, size);
             List<Category> cats = List.of();
             Page<Category> expected = new PageImpl<>(cats, pageable, 0);

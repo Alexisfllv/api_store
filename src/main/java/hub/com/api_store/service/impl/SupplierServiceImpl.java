@@ -5,7 +5,7 @@ import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.mapper.SupplierMapper;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.repo.SupplierRepo;
 import hub.com.api_store.service.SupplierService;
 import hub.com.api_store.service.domain.SupplierServiceDomain;
@@ -68,7 +68,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public List<SupplierDTOResponse> getListSupplierByStatus(String status, Integer limit) {
-        CategoryStatus enumStatus = CategoryStatus.valueOf(status.toUpperCase());
+        GlobalStatus enumStatus = GlobalStatus.valueOf(status.toUpperCase());
 
         List<Supplier> supplierList = supplierRepo.findByStatus(enumStatus);
         return supplierList
@@ -85,7 +85,7 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier supplier =  supplierMapper.toSupplier(supplierDTORequest);
         supplierServiceDomain.validateExistsByPhone(supplier.getPhone());
         supplierServiceDomain.validateExistsByEmail(supplier.getEmail());
-        supplier.setStatus(CategoryStatus.ACTIVE);
+        supplier.setStatus(GlobalStatus.ACTIVE);
         Supplier saved =  supplierRepo.save(supplier);
         SupplierDTOResponse response = supplierMapper.toSupplierDTOResponse(saved);
         return response;
@@ -120,13 +120,13 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public void deleteSupplier(Long id) {
         Supplier supplierExist = supplierServiceDomain.findByIdSupplier(id);
-        supplierExist.setStatus(CategoryStatus.DELETED);
+        supplierExist.setStatus(GlobalStatus.DELETED);
         supplierRepo.save(supplierExist);
     }
 
     // PATCH
     @Override
-    public SupplierDTOResponse changeStatusSupplier(Long id, CategoryStatus status) {
+    public SupplierDTOResponse changeStatusSupplier(Long id, GlobalStatus status) {
         Supplier supplierExist = supplierServiceDomain.findByIdSupplier(id);
         supplierExist.setStatus(status);
         Supplier updated = supplierRepo.save(supplierExist);

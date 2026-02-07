@@ -3,7 +3,7 @@ package hub.com.api_store.controller;
 import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.service.SupplierService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
@@ -107,7 +107,7 @@ public class SupplierController {
         @RequestParam(defaultValue = "ACTIVE")
         @Pattern(regexp = "ACTIVE|INACTIVE|active|inactive|DELETED|deleted", message = "Status debe ser ACTIVE, INACTIVE & DELTED")
         String status){
-        CategoryStatus enumStatus = CategoryStatus.valueOf(status.toUpperCase());
+        GlobalStatus enumStatus = GlobalStatus.valueOf(status.toUpperCase());
         SupplierDTOResponse response = supplierService.changeStatusSupplier(id, enumStatus);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.UPDATED, response)

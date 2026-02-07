@@ -3,7 +3,7 @@ package hub.com.api_store.service;
 import hub.com.api_store.dto.supplier.SupplierDTORequest;
 import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.util.page.PageResponse;
 
 import java.util.List;
@@ -24,5 +24,5 @@ public interface SupplierService {
     void deleteSupplier(Long id);
 
     // PATCH
-    SupplierDTOResponse changeStatusSupplier(Long id, CategoryStatus status);
+    SupplierDTOResponse changeStatusSupplier(Long id, GlobalStatus status);
 }

@@ -1,10 +1,9 @@
 package hub.com.api_store.service.domain;
 
-import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.exception.ResourceNotFoundException;
 import hub.com.api_store.exception.UniqueValidateException;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.nums.ExceptionMessages;
 import hub.com.api_store.repo.SupplierRepo;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +39,7 @@ public class SupplierServiceDomainTest {
             // Arrange
             Long idExist = 1L;
             Supplier supplier = new Supplier
-                    (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", CategoryStatus.ACTIVE);
+                    (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
 
             when(supplierRepo.findById(idExist)).thenReturn(Optional.of(supplier));
 
