@@ -5,7 +5,7 @@ import hub.com.api_store.dto.supplier.SupplierDTOResponse;
 import hub.com.api_store.dto.supplier.SupplierDTOUpdate;
 import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.mapper.SupplierMapper;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.repo.SupplierRepo;
 import hub.com.api_store.service.domain.SupplierServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
@@ -22,11 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,18 +46,18 @@ public class SupplierServiceImplTest {
 
 
     // helper entity and dto
-    private Supplier createSupplier(Long id, String name, String phone, String email, String address, CategoryStatus status) {
+    private Supplier createSupplier(Long id, String name, String phone, String email, String address, GlobalStatus status) {
         return new Supplier(id, name, phone, email, address, status);
     }
 
-    private SupplierDTOResponse createSupplierDTO(Long id, String name, String phone, String email, String address, CategoryStatus status) {
+    private SupplierDTOResponse createSupplierDTO(Long id, String name, String phone, String email, String address, GlobalStatus status) {
         return new SupplierDTOResponse(id, name, phone, email, address, status);
     }
 
     private SupplierDTORequest createSupplierDTORequest(String name , String phone, String email, String address) {
         return new SupplierDTORequest(name, phone, email, address);
     }
-    private SupplierDTOUpdate createSupplierDTOUpdate(String name , String phone, String email, String address , CategoryStatus status) {
+    private SupplierDTOUpdate createSupplierDTOUpdate(String name , String phone, String email, String address , GlobalStatus status) {
         return new SupplierDTOUpdate(name, phone, email, address, status);
     }
 
@@ -72,9 +69,9 @@ public class SupplierServiceImplTest {
         // Arrange
         Long supplierId = 1L;
         Supplier supplier = new Supplier
-                (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", CategoryStatus.ACTIVE);
+                (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
         SupplierDTOResponse supplierResponse = new SupplierDTOResponse
-                (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", CategoryStatus.ACTIVE);
+                (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
 
         when(supplierServiceDomain.findByIdSupplier(supplierId)).thenReturn(supplier);
         when(supplierMapper.toSupplierDTOResponse(supplier)).thenReturn(supplierResponse);
@@ -104,13 +101,13 @@ public class SupplierServiceImplTest {
         int page = 0;
         int size = 10;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC,"id"));
-        Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
-        Supplier supplier2 = createSupplier(2L, "West", "+51923431112", "West@email.com", "AQP-", CategoryStatus.INACTIVE);
+        Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+        Supplier supplier2 = createSupplier(2L, "West", "+51923431112", "West@email.com", "AQP-", GlobalStatus.INACTIVE);
         List<Supplier> supplierList = List.of(supplier1, supplier2);
         Page<Supplier> pageSupplier = new PageImpl(supplierList, pageRequest, supplierList.size());
 
-        SupplierDTOResponse dto1 = createSupplierDTO(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
-        SupplierDTOResponse dto2 = createSupplierDTO(2L, "West", "+51923431112", "West@email.com", "AQP-", CategoryStatus.INACTIVE);
+        SupplierDTOResponse dto1 = createSupplierDTO(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+        SupplierDTOResponse dto2 = createSupplierDTO(2L, "West", "+51923431112", "West@email.com", "AQP-", GlobalStatus.INACTIVE);
 
         when(supplierRepo.findAll(pageRequest)).thenReturn(pageSupplier);
         when(supplierMapper.toSupplierDTOResponse(supplier1)).thenReturn(dto1);
@@ -141,8 +138,8 @@ public class SupplierServiceImplTest {
         // Arrange
         SupplierDTORequest supplierDTORequest = createSupplierDTORequest("Fring","+51920287650","Fring@email.com","Lima-Lima");
         Supplier supplierempty = createSupplier(null,"Fring","+51920287650","Fring@email.com","Lima-Lima",null);
-        Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
-        SupplierDTOResponse dto1 = createSupplierDTO(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
+        Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+        SupplierDTOResponse dto1 = createSupplierDTO(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
 
         when(supplierMapper.toSupplier(supplierDTORequest)).thenReturn(supplierempty);
         when(supplierRepo.save(supplierempty)).thenReturn(supplier1);
@@ -174,11 +171,11 @@ public class SupplierServiceImplTest {
         @DisplayName("updateSupplier")
         void updateSupplier(){
             // Arrange
-            SupplierDTOUpdate update = createSupplierDTOUpdate("Demo","+51000000000","Demo@email.com","Lima-Lima",CategoryStatus.ACTIVE);
-            Supplier updateEntity = createSupplier(null,"Demo","+51000000000","Demo@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+            SupplierDTOUpdate update = createSupplierDTOUpdate("Demo","+51000000000","Demo@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+            Supplier updateEntity = createSupplier(null,"Demo","+51000000000","Demo@email.com","Lima-Lima", GlobalStatus.ACTIVE);
 
-            Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
-            SupplierDTOResponse dto1 = createSupplierDTO(1L,"Demo","+51000000000","Demo@email.com","Lima-Lima",CategoryStatus.ACTIVE);
+            Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+            SupplierDTOResponse dto1 = createSupplierDTO(1L,"Demo","+51000000000","Demo@email.com","Lima-Lima", GlobalStatus.ACTIVE);
             when(supplierServiceDomain.findByIdSupplier(1L)).thenReturn(supplier1);
             when(supplierRepo.save(any(Supplier.class))).thenReturn(updateEntity);
             when(supplierMapper.toSupplierDTOResponse(updateEntity)).thenReturn(dto1);
@@ -208,9 +205,9 @@ public class SupplierServiceImplTest {
         @DisplayName("PUT updateSupplier - solo cambia status (mismo phone y email)")
         void updateSupplierOnlyStatus(){
             // Arrange - phone y email IGUALES
-            SupplierDTOUpdate update = createSupplierDTOUpdate("Demo","+51920287650","Fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
-            Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", CategoryStatus.ACTIVE);
-            SupplierDTOResponse dto1 = createSupplierDTO(1L,"Demo","+51920287650","Fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
+            SupplierDTOUpdate update = createSupplierDTOUpdate("Demo","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.INACTIVE);
+            Supplier supplier1 = createSupplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+            SupplierDTOResponse dto1 = createSupplierDTO(1L,"Demo","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.INACTIVE);
 
             when(supplierServiceDomain.findByIdSupplier(1L)).thenReturn(supplier1);
             when(supplierRepo.save(any(Supplier.class))).thenReturn(supplier1);
@@ -233,14 +230,14 @@ public class SupplierServiceImplTest {
     void deleteSupplierDelete(){
         // Arrange
         Long idSupplier = 1L;
-        Supplier supplierExist = createSupplier(1L,"West","+51920287650","west@email.com","Lima...",CategoryStatus.ACTIVE);
-        Supplier supplierSofDelete = createSupplier(1L,"West","+51920287650","west@email.com","Lima...",CategoryStatus.DELETED);
+        Supplier supplierExist = createSupplier(1L,"West","+51920287650","west@email.com","Lima...", GlobalStatus.ACTIVE);
+        Supplier supplierSofDelete = createSupplier(1L,"West","+51920287650","west@email.com","Lima...", GlobalStatus.DELETED);
         when(supplierServiceDomain.findByIdSupplier(idSupplier)).thenReturn(supplierExist);
         when(supplierRepo.save(any(Supplier.class))).thenReturn(supplierSofDelete);
         // Act
         supplierServiceImpl.deleteSupplier(idSupplier);
         // Assert
-        assertEquals(CategoryStatus.DELETED,supplierSofDelete.getStatus());
+        assertEquals(GlobalStatus.DELETED,supplierSofDelete.getStatus());
         // InOrder & Verify
         InOrder inOrder = Mockito.inOrder(supplierServiceDomain, supplierRepo);
         inOrder.verify(supplierServiceDomain).findByIdSupplier(idSupplier);
@@ -254,10 +251,10 @@ public class SupplierServiceImplTest {
         // Arrange
         String name = "We";
         Integer limit = 10;
-        Supplier sup1 = createSupplier(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
-        Supplier sup2 = createSupplier(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.INACTIVE);
-        SupplierDTOResponse supd1 = createSupplierDTO(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
-        SupplierDTOResponse supd2 = createSupplierDTO(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.INACTIVE);
+        Supplier sup1 = createSupplier(2L,"Well","51987654321","Well@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+        Supplier sup2 = createSupplier(8L,"West","51983737322","West@email.com","Lima-Ate", GlobalStatus.INACTIVE);
+        SupplierDTOResponse supd1 = createSupplierDTO(2L,"Well","51987654321","Well@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+        SupplierDTOResponse supd2 = createSupplierDTO(8L,"West","51983737322","West@email.com","Lima-Ate", GlobalStatus.INACTIVE);
 
         List<Supplier> suppliers = List.of(sup1,sup2);
         when(supplierRepo.findByNameContainingIgnoreCase(name)).thenReturn(suppliers);
@@ -288,11 +285,11 @@ public class SupplierServiceImplTest {
         // Arrange
         String status = "ACTIVE";
         Integer limit = 10;
-        CategoryStatus enumStatus =  CategoryStatus.valueOf(status.toUpperCase());
-        Supplier sup1 = createSupplier(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
-        Supplier sup2 = createSupplier(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.ACTIVE);
-        SupplierDTOResponse supd1 = createSupplierDTO(2L,"Well","51987654321","Well@email.com","Lima-Lima",CategoryStatus.ACTIVE);
-        SupplierDTOResponse supd2 = createSupplierDTO(8L,"West","51983737322","West@email.com","Lima-Ate",CategoryStatus.ACTIVE);
+        GlobalStatus enumStatus =  GlobalStatus.valueOf(status.toUpperCase());
+        Supplier sup1 = createSupplier(2L,"Well","51987654321","Well@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+        Supplier sup2 = createSupplier(8L,"West","51983737322","West@email.com","Lima-Ate", GlobalStatus.ACTIVE);
+        SupplierDTOResponse supd1 = createSupplierDTO(2L,"Well","51987654321","Well@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+        SupplierDTOResponse supd2 = createSupplierDTO(8L,"West","51983737322","West@email.com","Lima-Ate", GlobalStatus.ACTIVE);
 
         List<Supplier> suppliers = List.of(sup1,sup2);
         when(supplierRepo.findByStatus(enumStatus)).thenReturn(suppliers);
@@ -304,8 +301,8 @@ public class SupplierServiceImplTest {
         assertAll(
                 () -> assertNotNull(resultList),
                 () -> assertEquals(2,resultList.size()),
-                () -> assertEquals(CategoryStatus.ACTIVE,resultList.get(0).status()),
-                () -> assertEquals(CategoryStatus.ACTIVE,resultList.get(1).status())
+                () -> assertEquals(GlobalStatus.ACTIVE,resultList.get(0).status()),
+                () -> assertEquals(GlobalStatus.ACTIVE,resultList.get(1).status())
         );
 
         // InOrder & Verify
@@ -322,10 +319,10 @@ public class SupplierServiceImplTest {
         // Arrange
         Long id = 1L;
         String status = "INACTIVE";
-        CategoryStatus enumStatus = CategoryStatus.valueOf(status.toUpperCase());
-        Supplier supplierExist = createSupplier(1L,"Fring","+51920287650","fring@email.com","Lima-Lima",CategoryStatus.ACTIVE);
-        Supplier supplierUpdated = createSupplier(1L,"Fring","+51920287650","fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
-        SupplierDTOResponse supplierDTOResponse = createSupplierDTO(1L,"Fring","+51920287650","fring@email.com","Lima-Lima",CategoryStatus.INACTIVE);
+        GlobalStatus enumStatus = GlobalStatus.valueOf(status.toUpperCase());
+        Supplier supplierExist = createSupplier(1L,"Fring","+51920287650","fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+        Supplier supplierUpdated = createSupplier(1L,"Fring","+51920287650","fring@email.com","Lima-Lima", GlobalStatus.INACTIVE);
+        SupplierDTOResponse supplierDTOResponse = createSupplierDTO(1L,"Fring","+51920287650","fring@email.com","Lima-Lima", GlobalStatus.INACTIVE);
         when(supplierServiceDomain.findByIdSupplier(id)).thenReturn(supplierExist);
         when(supplierRepo.save(supplierExist)).thenReturn(supplierUpdated);
         when(supplierMapper.toSupplierDTOResponse(supplierUpdated)).thenReturn(supplierDTOResponse);

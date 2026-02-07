@@ -1,6 +1,6 @@
 package hub.com.api_store.dto.category;
 
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,4 +18,4 @@ public record CategoryDTOUpdate(
 
         @Schema(description = "Category status.", example = "ACTIVE", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull(message = "{field.required}")
-        CategoryStatus status) {}
+        GlobalStatus status) {}

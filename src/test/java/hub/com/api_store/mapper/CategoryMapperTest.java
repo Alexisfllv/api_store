@@ -3,17 +3,14 @@ package hub.com.api_store.mapper;
 import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.entity.Category;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.mockito.InOrder;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 public class CategoryMapperTest {
 
@@ -32,7 +29,7 @@ public class CategoryMapperTest {
         @DisplayName("Should map response <- entity")
         void toCategoryDTOResponse_shouldMapCorrectly() {
             // Arrange
-            Category category = new Category(1L,"name","description", CategoryStatus.ACTIVE);
+            Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
             // Act
             CategoryDTOResponse result = categoryMapper.toCategoryDTOResponse(category);
 
@@ -41,7 +38,7 @@ public class CategoryMapperTest {
                     () -> assertEquals(1L,result.id()),
                     () -> assertEquals("name",result.name()),
                     () -> assertEquals("description",result.description()),
-                    () -> assertEquals(CategoryStatus.ACTIVE,result.status())
+                    () -> assertEquals(GlobalStatus.ACTIVE,result.status())
             );
         }
 

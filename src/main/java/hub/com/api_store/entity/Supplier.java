@@ -1,7 +1,7 @@
 package hub.com.api_store.entity;
 
 
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,5 +37,5 @@ public class Supplier {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CategoryStatus status;
+    private GlobalStatus status;
 }

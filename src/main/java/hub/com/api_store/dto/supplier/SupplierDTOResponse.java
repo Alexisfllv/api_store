@@ -1,6 +1,6 @@
 package hub.com.api_store.dto.supplier;
 
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 
 public record SupplierDTOResponse (
         Long id,
@@ -8,5 +8,5 @@ public record SupplierDTOResponse (
         String phone,
         String email,
         String address,
-        CategoryStatus status
+        GlobalStatus status
 ){}

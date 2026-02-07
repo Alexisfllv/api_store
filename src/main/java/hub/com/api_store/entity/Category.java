@@ -1,7 +1,7 @@
 package hub.com.api_store.entity;
 
 
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.util.auditing.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,5 +31,5 @@ public class Category extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CategoryStatus status;
+    private GlobalStatus status;
 }

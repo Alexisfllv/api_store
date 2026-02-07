@@ -5,15 +5,13 @@ import hub.com.api_store.dto.category.CategoryDTORequest;
 import hub.com.api_store.dto.category.CategoryDTOResponse;
 import hub.com.api_store.dto.category.CategoryDTOUpdate;
 import hub.com.api_store.exception.InvalidStatusException;
-import hub.com.api_store.nums.CategoryStatus;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.service.CategoryService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +46,7 @@ public class CategoryController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size){
         try {
-            CategoryStatus upperStatus =  CategoryStatus.valueOf(status.toUpperCase());
+            GlobalStatus upperStatus =  GlobalStatus.valueOf(status.toUpperCase());
             PageResponse<CategoryDTOResponse> paged = categoryService.getPageListCategoryByStatus(upperStatus,page,size);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(StatusApi.SUCCESS, paged));
@@ -88,7 +86,7 @@ public class CategoryController {
     @PatchMapping("/{id}/status/{status}")
     public ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryStatusPatch(@PathVariable Long id, @PathVariable String status){
         try {
-            CategoryStatus upperStatus =  CategoryStatus.valueOf(status.toUpperCase());
+            GlobalStatus upperStatus =  GlobalStatus.valueOf(status.toUpperCase());
             CategoryDTOResponse response = categoryService.updateCategoryStatus(id, upperStatus);
             return ResponseEntity.status(HttpStatus.OK).body(
                     new GenericResponse<>(StatusApi.UPDATED, response));
