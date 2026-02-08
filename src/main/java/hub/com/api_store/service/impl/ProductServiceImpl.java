@@ -1,10 +1,13 @@
 package hub.com.api_store.service.impl;
 
+import hub.com.api_store.dto.product.ProductDTORequest;
 import hub.com.api_store.dto.product.ProductDTOResponse;
+import hub.com.api_store.entity.Category;
 import hub.com.api_store.entity.Product;
 import hub.com.api_store.mapper.ProductMapper;
 import hub.com.api_store.repo.ProductRepo;
 import hub.com.api_store.service.ProductService;
+import hub.com.api_store.service.domain.CategoryServiceDomain;
 import hub.com.api_store.service.domain.ProductServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,9 @@ public class ProductServiceImpl implements ProductService {
     private final ProductServiceDomain productServiceDomain;
     private final ProductMapper productMapper;
     private final ProductRepo productRepo;
+
+    // cat
+    private final CategoryServiceDomain categoryServiceDomain;
 
     // GET
     @Override
@@ -46,5 +52,18 @@ public class ProductServiceImpl implements ProductService {
                 productPageResponse.getTotalElements(),
                 productPageResponse.getTotalPages()
         );
+    }
+
+    // POST
+    @Transactional
+    @Override
+    public ProductDTOResponse addProduct(ProductDTORequest productDTORequest) {
+        Category category =  categoryServiceDomain.findByIdCategory(productDTORequest.categoryId());
+
+        Product product = productMapper.toProduct(productDTORequest,category);
+
+        Product savedProduct = productRepo.save(product);
+        ProductDTOResponse productDTOResponse = productMapper.toProductDTOResponse(savedProduct);
+        return productDTOResponse;
     }
 }
