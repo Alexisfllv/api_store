@@ -1,5 +1,6 @@
 package hub.com.api_store.mapper;
 
+import hub.com.api_store.dto.product.ProductDTORequest;
 import hub.com.api_store.dto.product.ProductDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.entity.Product;
@@ -44,5 +45,26 @@ public class ProductMapperTest {
                     () -> assertEquals("name", productDTOResponse.categoryName())
             );
         }
+    }
+
+    @Test
+    @DisplayName("toProduct mapped entity <- request")
+    void toProduct(){
+        // Arrange
+        Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+
+        ProductDTORequest request = new ProductDTORequest("name",GlobalUnit.KG,category.getId());
+
+        // Act
+        Product product = productMapper.toProduct(request,category);
+        // Assert
+        assertAll(
+                () -> assertNotNull(product),
+                () -> assertNull(product.getId()),
+                () -> assertEquals("name", product.getName()),
+                () -> assertEquals(GlobalUnit.KG, product.getUnit()),
+                () -> assertEquals(GlobalStatus.ACTIVE, product.getStatus()),
+                () -> assertEquals(category, product.getCategory())
+        );
     }
 }
