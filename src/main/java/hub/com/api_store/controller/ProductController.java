@@ -1,10 +1,12 @@
 package hub.com.api_store.controller;
 
+import hub.com.api_store.dto.product.ProductDTORequest;
 import hub.com.api_store.dto.product.ProductDTOResponse;
 import hub.com.api_store.service.ProductService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,13 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, pageResponse)
         );
+    }
 
+    @PostMapping
+    public ResponseEntity<GenericResponse<ProductDTOResponse>> addProductPost(@Valid @RequestBody ProductDTORequest productDTORequest){
+        ProductDTOResponse productDTOResponse = productService.addProduct(productDTORequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new GenericResponse<>(StatusApi.CREATED, productDTOResponse)
+        );
     }
 }
