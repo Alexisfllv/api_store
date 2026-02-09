@@ -2,6 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.product.ProductDTORequest;
 import hub.com.api_store.dto.product.ProductDTOResponse;
+import hub.com.api_store.dto.product.ProductDTOUpdate;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.entity.Product;
 import hub.com.api_store.mapper.ProductMapper;
@@ -64,6 +65,21 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepo.save(product);
         ProductDTOResponse productDTOResponse = productMapper.toProductDTOResponse(savedProduct);
+        return productDTOResponse;
+    }
+
+    // PUT
+    @Transactional
+    @Override
+    public ProductDTOResponse updateProduct(Long id, ProductDTOUpdate productDTOUpdate) {
+        Product productExist = productServiceDomain.findById(id);
+        Category category =  categoryServiceDomain.findByIdCategory(productDTOUpdate.categoryId());
+        productExist.setName(productDTOUpdate.name());
+        productExist.setUnit(productDTOUpdate.unit());
+        productExist.setStatus(productDTOUpdate.status());
+        productExist.setCategory(category);
+        Product productUpdated = productRepo.save(productExist);
+        ProductDTOResponse productDTOResponse = productMapper.toProductDTOResponse(productUpdated);
         return productDTOResponse;
     }
 }

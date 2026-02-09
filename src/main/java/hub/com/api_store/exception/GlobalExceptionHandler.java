@@ -9,7 +9,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import tools.jackson.databind.exc.InvalidFormatException;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -102,14 +104,45 @@ public class GlobalExceptionHandler {
 
     // other exception
 
-    // Bad format JSON 400
-    @ExceptionHandler (HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest req) {
+    // JSON bad format , enum validate, type incorrect, format date , out range int,long  etc.
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpServletRequest req) {
+
+        Throwable cause = ex.getCause();
+        String errorMsg = "json bad format.";
+        String errorType = "MalformedJsonError";
+
+        if (cause instanceof InvalidFormatException invalidFormatEx) {
+            Class<?> targetType = invalidFormatEx.getTargetType();
+            String fieldName = invalidFormatEx.getPath().isEmpty()
+                    ? "unknown"
+                    : invalidFormatEx.getPath().get(0).getPropertyName();
+            String invalidValue = invalidFormatEx.getValue().toString();
+
+            // Error de ENUM
+            if (targetType != null && targetType.isEnum()) {
+                String validValues = Arrays.stream(targetType.getEnumConstants())
+                        .map(Object::toString)
+                        .collect(Collectors.joining(", "));
+
+                errorMsg = String.format("%s: Invalid value '%s'. Valid values are: %s",
+                        fieldName, invalidValue, validValues);
+                errorType = "Invalid Enum Value";
+            }
+            // Error de TIPO (String en vez de Number, Boolean, Date, etc.)
+            else {
+                errorMsg = String.format("%s: Invalid value '%s'. Expected type: %s",
+                        fieldName, invalidValue, targetType.getSimpleName());
+                errorType = "Invalid Type";
+            }
+        }
+
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                "json bad format.",
+                errorMsg,
                 req.getRequestURI(),
-                "MalformedJsonError"
+                errorType
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
