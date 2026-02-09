@@ -13,13 +13,4 @@ public enum GlobalUnit {
     BOX,
     PACKAGE;
 
-    @JsonCreator
-    public static GlobalUnit fromString(String value) {
-        return GlobalUnit.valueOf(value.toUpperCase());
-    }
-
-    @JsonValue
-    public String toValue() {
-        return this.name();
-    }
 }
