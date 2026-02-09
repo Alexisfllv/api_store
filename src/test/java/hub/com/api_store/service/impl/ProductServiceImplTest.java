@@ -2,6 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.product.ProductDTORequest;
 import hub.com.api_store.dto.product.ProductDTOResponse;
+import hub.com.api_store.dto.product.ProductDTOUpdate;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.entity.Product;
 import hub.com.api_store.mapper.ProductMapper;
@@ -146,6 +147,60 @@ public class ProductServiceImplTest {
         InOrder inOrder = Mockito.inOrder(categoryServiceDomain, productMapper, productRepo);
         inOrder.verify(categoryServiceDomain).findByIdCategory(category.getId());
         inOrder.verify(productMapper).toProduct(productDTORequest,category);
+        inOrder.verify(productRepo).save(product);
+        inOrder.verify(productMapper).toProductDTOResponse(product);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("updateProduct Test")
+    void updateProduct(){
+        // Arrange
+        Long productId = 1L;
+        Category originalCategory = new Category(1L,"Lacteos","desc", GlobalStatus.ACTIVE);
+        Product product = new Product(productId,"Arroz", GlobalUnit.KG, GlobalStatus.ACTIVE, originalCategory);
+
+
+        Category newCategory = new Category(2L,"Panaderia","desc update", GlobalStatus.ACTIVE);
+
+        ProductDTOUpdate productDTOUpdate = new ProductDTOUpdate(
+                "Trigo trigal",
+                GlobalUnit.LITER,
+                GlobalStatus.INACTIVE,
+                newCategory.getId()
+        );
+
+        ProductDTOResponse expectedResponse = new ProductDTOResponse(
+                productId,
+                "Trigo trigal",
+                GlobalUnit.LITER,
+                GlobalStatus.INACTIVE,
+                newCategory.getId(),
+                newCategory.getName()
+        );
+
+
+        when(productServiceDomain.findById(productId)).thenReturn(product);
+        when(categoryServiceDomain.findByIdCategory(newCategory.getId())).thenReturn(newCategory);
+        when(productRepo.save(product)).thenReturn(product);
+        when(productMapper.toProductDTOResponse(product)).thenReturn(expectedResponse);
+
+        // Act
+        ProductDTOResponse result = productServiceImpl.updateProduct(productId,productDTOUpdate);
+        // Assert
+        assertAll(
+                () -> assertEquals(expectedResponse.id(),result.id()),
+                () -> assertEquals(expectedResponse.name(),result.name()),
+                () -> assertEquals(expectedResponse.unit(),result.unit()),
+                () -> assertEquals(expectedResponse.status(),result.status()),
+                () -> assertEquals(expectedResponse.categoryId(),result.categoryId()),
+                () -> assertEquals(expectedResponse.categoryName(),result.categoryName())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(productRepo, productMapper,productServiceDomain,categoryServiceDomain);
+        inOrder.verify(productServiceDomain).findById(productId);
+        inOrder.verify(categoryServiceDomain).findByIdCategory(newCategory.getId());
         inOrder.verify(productRepo).save(product);
         inOrder.verify(productMapper).toProductDTOResponse(product);
         inOrder.verifyNoMoreInteractions();
