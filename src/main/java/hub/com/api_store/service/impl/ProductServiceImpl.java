@@ -6,6 +6,7 @@ import hub.com.api_store.dto.product.ProductDTOUpdate;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.entity.Product;
 import hub.com.api_store.mapper.ProductMapper;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.repo.ProductRepo;
 import hub.com.api_store.service.ProductService;
 import hub.com.api_store.service.domain.CategoryServiceDomain;
@@ -82,4 +83,17 @@ public class ProductServiceImpl implements ProductService {
         ProductDTOResponse productDTOResponse = productMapper.toProductDTOResponse(productUpdated);
         return productDTOResponse;
     }
+
+
+
+    // DELETE
+    @Transactional
+    @Override
+    public void deleteProductById(Long id) {
+        Product product = productServiceDomain.findById(id);
+        product.setStatus(GlobalStatus.DELETED);
+        productRepo.save(product);
+    }
+
+
 }

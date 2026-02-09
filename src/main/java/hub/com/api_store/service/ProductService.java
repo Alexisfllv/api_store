@@ -15,4 +15,8 @@ public interface ProductService {
 
     // PUT
     ProductDTOResponse updateProduct(Long id, ProductDTOUpdate productDTOUpdate);
+
+    // DELETE
+    void deleteProductById(Long id);
+
 }

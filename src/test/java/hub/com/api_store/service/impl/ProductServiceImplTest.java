@@ -205,4 +205,27 @@ public class ProductServiceImplTest {
         inOrder.verify(productMapper).toProductDTOResponse(product);
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    @DisplayName("deleteProductById Test")
+    void deleteProductById(){
+        // Arrange
+        Long productId = 1L;
+        Category category = new Category(1L,"Lacteos","desc", GlobalStatus.ACTIVE);
+        Product product = new Product(productId,"Arroz", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        when(productServiceDomain.findById(productId)).thenReturn(product);
+        when(productRepo.save(product)).thenReturn(product);
+
+        // Act
+        productServiceImpl.deleteProductById(productId);
+        // Assert
+        assertEquals(GlobalStatus.DELETED,product.getStatus());
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(productServiceDomain, productRepo);
+        inOrder.verify(productServiceDomain).findById(productId);
+        inOrder.verify(productRepo).save(product);
+        inOrder.verifyNoMoreInteractions();
+    }
 }
