@@ -61,4 +61,11 @@ public class ProductController {
                 new GenericResponse<>(StatusApi.UPDATED, productDTOResponse)
         );
     }
+
+    // DELETE
+    @DeleteMapping("/soft-delete/{id}")
+    public ResponseEntity<Void> deleteProductByIdDelete(@PathVariable Long id){
+        productService.deleteProductById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
