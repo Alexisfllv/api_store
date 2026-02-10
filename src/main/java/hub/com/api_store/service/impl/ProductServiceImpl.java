@@ -70,6 +70,15 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
+    @Override
+    public List<ProductDTOResponse> findProductListByName(String name, int limit) {
+        List<Product> productList = productRepo.findByNameContainingIgnoreCase(name);
+        return productList.stream()
+                .map(productMapper::toProductDTOResponse)
+                .limit(limit)
+                .toList();
+    }
+
     // POST
     @Transactional
     @Override

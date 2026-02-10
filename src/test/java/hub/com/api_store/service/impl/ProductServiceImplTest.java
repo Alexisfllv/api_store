@@ -276,4 +276,49 @@ public class ProductServiceImplTest {
         inOrder.verify(productMapper).toProductDTOResponse(product2);
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    @DisplayName("findProductListByName Test")
+    void findProductListByName() {
+        // Arrange
+        String name = "Arroz";
+        int limit = 5;
+        Category category = new Category(1L,"Trigo","desc", GlobalStatus.ACTIVE);
+        Product product1 = new Product(1L,"Arroz", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+        Product product2 = new Product(2L,"Arroz integral", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+        List<Product> productList = List.of(product1,product2);
+        ProductDTOResponse productDTOResponse1 = new ProductDTOResponse(1L,"Arroz", GlobalUnit.KG, GlobalStatus.ACTIVE,category.getId(),category.getName());
+        ProductDTOResponse productDTOResponse2 = new ProductDTOResponse(2L,"Arroz integral", GlobalUnit.KG, GlobalStatus.ACTIVE,category.getId(),category.getName());
+        List<ProductDTOResponse> productDTOResponseList = List.of(productDTOResponse1,productDTOResponse2);
+
+        when(productRepo.findByNameContainingIgnoreCase(name)).thenReturn(productList);
+        when(productMapper.toProductDTOResponse(product1)).thenReturn(productDTOResponse1);
+        when(productMapper.toProductDTOResponse(product2)).thenReturn(productDTOResponse2);
+        // Act
+        List<ProductDTOResponse> resultList = productServiceImpl.findProductListByName(name,limit);
+        // Assert
+        assertAll(
+                () -> assertEquals(productDTOResponseList.size(),resultList.size()),
+                () -> assertEquals(productDTOResponseList.get(0).id(),resultList.get(0).id()),
+                () -> assertEquals(productDTOResponseList.get(0).name(),resultList.get(0).name()),
+                () -> assertEquals(productDTOResponseList.get(0).unit(),resultList.get(0).unit()),
+                () -> assertEquals(productDTOResponseList.get(0).status(),resultList.get(0).status()),
+                () -> assertEquals(productDTOResponseList.get(0).categoryId(),resultList.get(0).categoryId()),
+                () -> assertEquals(productDTOResponseList.get(0).categoryName(),resultList.get(0).categoryName()),
+                () -> assertEquals(productDTOResponseList.get(1).id(),resultList.get(1).id()),
+                () -> assertEquals(productDTOResponseList.get(1).name(),resultList.get(1).name()),
+                () -> assertEquals(productDTOResponseList.get(1).unit(),resultList.get(1).unit()),
+                () -> assertEquals(productDTOResponseList.get(1).status(),resultList.get(1).status()),
+                () -> assertEquals(productDTOResponseList.get(1).categoryId(),resultList.get(1).categoryId()),
+                () -> assertEquals(productDTOResponseList.get(1).categoryName(),resultList.get(1).categoryName())
+        );
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(productRepo, productMapper);
+        inOrder.verify(productRepo).findByNameContainingIgnoreCase(name);
+        inOrder.verify(productMapper).toProductDTOResponse(product1);
+        inOrder.verify(productMapper).toProductDTOResponse(product2);
+        inOrder.verifyNoMoreInteractions();
+
+
+    }
 }
