@@ -3,6 +3,7 @@ package hub.com.api_store.service;
 import hub.com.api_store.dto.product.ProductDTORequest;
 import hub.com.api_store.dto.product.ProductDTOResponse;
 import hub.com.api_store.dto.product.ProductDTOUpdate;
+import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.util.page.PageResponse;
 
 import java.util.List;
@@ -15,6 +16,8 @@ public interface ProductService {
     List<ProductDTOResponse> findProductListByCategoryId(Long categoryId,int limit);
 
     List<ProductDTOResponse> findProductListByName(String name, int limit);
+
+    List<ProductDTOResponse> findProductListByStatus(GlobalStatus status, int limit);
 
     // POST
     ProductDTOResponse addProduct(ProductDTORequest productDTORequest);
