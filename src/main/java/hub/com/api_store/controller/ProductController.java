@@ -8,11 +8,13 @@ import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,6 +41,17 @@ public class ProductController {
         PageResponse<ProductDTOResponse> pageResponse = productService.getPageFindAllProducts(page, size, prop);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, pageResponse)
+        );
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<GenericResponse<List<ProductDTOResponse>>> findProductListByCategoryIdGet(
+            @PathVariable Long categoryId,
+            @Positive (message = "{field.must.be.positive}")
+            @RequestParam(defaultValue = "10") int limit){
+        List<ProductDTOResponse> productDTOResponseList = productService.findProductListByCategoryId(categoryId, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, productDTOResponseList)
         );
     }
 
