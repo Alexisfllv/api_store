@@ -14,6 +14,8 @@ public interface ProductService {
 
     List<ProductDTOResponse> findProductListByCategoryId(Long categoryId,int limit);
 
+    List<ProductDTOResponse> findProductListByName(String name, int limit);
+
     // POST
     ProductDTOResponse addProduct(ProductDTORequest productDTORequest);
 
