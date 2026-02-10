@@ -79,6 +79,15 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
+    @Override
+    public List<ProductDTOResponse> findProductListByStatus(GlobalStatus status, int limit) {
+        List<Product> productList = productRepo.findByStatus(status);
+        return productList.stream()
+                .map(productMapper::toProductDTOResponse)
+                .limit(limit)
+                .toList();
+    }
+
     // POST
     @Transactional
     @Override
