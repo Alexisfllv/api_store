@@ -55,6 +55,17 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/search/name")
+    public ResponseEntity<GenericResponse<List<ProductDTOResponse>>> findProductListByNameGet(
+            @RequestParam String name,
+            @Positive (message = "{field.must.be.positive}")
+            @RequestParam(defaultValue = "10") int limit){
+        List<ProductDTOResponse> productDTOResponseList = productService.findProductListByName(name, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, productDTOResponseList)
+        );
+    }
+
     // POST
     @PostMapping
     public ResponseEntity<GenericResponse<ProductDTOResponse>> addProductPost(@Valid @RequestBody ProductDTORequest productDTORequest){
