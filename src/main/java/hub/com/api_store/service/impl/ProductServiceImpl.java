@@ -21,6 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -54,6 +58,16 @@ public class ProductServiceImpl implements ProductService {
                 productPageResponse.getTotalElements(),
                 productPageResponse.getTotalPages()
         );
+    }
+
+    @Override
+    public List<ProductDTOResponse> findProductListByCategoryId(Long categoryId,int limit) {
+        categoryServiceDomain.findByIdCategory(categoryId);
+        List<Product> productList = productRepo.findByCategoryId(categoryId);
+        return productList.stream()
+                .map(productMapper::toProductDTOResponse)
+                .limit(limit)
+                .toList();
     }
 
     // POST
