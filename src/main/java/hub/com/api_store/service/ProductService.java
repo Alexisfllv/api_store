@@ -28,4 +28,7 @@ public interface ProductService {
     // DELETE
     void deleteProductById(Long id);
 
+    // PATCH
+    ProductDTOResponse chagengeStatusProduct(Long id, GlobalStatus status);
+
 }
