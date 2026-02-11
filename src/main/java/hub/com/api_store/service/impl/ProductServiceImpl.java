@@ -127,5 +127,16 @@ public class ProductServiceImpl implements ProductService {
         productRepo.save(product);
     }
 
+    // PATCH
+    @Transactional
+    @Override
+    public ProductDTOResponse chagengeStatusProduct(Long id, GlobalStatus status) {
+        Product product = productServiceDomain.findById(id);
+        product.setStatus(status);
+        Product updatedProduct = productRepo.save(product);
+        ProductDTOResponse productDTOResponse = productMapper.toProductDTOResponse(updatedProduct);
+        return productDTOResponse;
+    }
+
 
 }
