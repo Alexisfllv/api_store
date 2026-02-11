@@ -108,4 +108,15 @@ public class ProductController {
         productService.deleteProductById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    // PATCH
+    @PatchMapping("/change/status/{id}")
+    public ResponseEntity<GenericResponse<ProductDTOResponse>> changeStatusProductPatch(
+            @PathVariable Long id,
+            @RequestParam GlobalStatus status) {
+        ProductDTOResponse productDTOResponse = productService.chagengeStatusProduct(id, status);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.UPDATED, productDTOResponse)
+        );
+    }
 }
