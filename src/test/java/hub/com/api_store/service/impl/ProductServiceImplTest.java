@@ -364,4 +364,45 @@ public class ProductServiceImplTest {
         inOrder.verify(productMapper).toProductDTOResponse(product2);
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    @DisplayName("chagengeStatusProduct Test")
+    void  chagengeStatusProduct() {
+        // Arrange
+        Long productId = 1L;
+        GlobalStatus newStatus = GlobalStatus.INACTIVE;
+        Category category = new Category(1L,"Trigo","desc", GlobalStatus.ACTIVE);
+        Product product = new Product(productId,"Arroz", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+        ProductDTOResponse expectedResponse = new ProductDTOResponse(
+                productId,
+                "Arroz",
+                GlobalUnit.KG,
+                newStatus,
+                category.getId(),
+                category.getName()
+        );
+
+        when(productServiceDomain.findById(productId)).thenReturn(product);
+        when(productRepo.save(product)).thenReturn(product);
+        when(productMapper.toProductDTOResponse(product)).thenReturn(expectedResponse);
+
+        // Act
+        ProductDTOResponse result = productServiceImpl.chagengeStatusProduct(productId, newStatus);
+        // Assert
+        assertAll(
+                () -> assertEquals(expectedResponse.id(), result.id()),
+                () -> assertEquals(expectedResponse.name(), result.name()),
+                () -> assertEquals(expectedResponse.unit(), result.unit()),
+                () -> assertEquals(expectedResponse.status(), result.status()),
+                () -> assertEquals(expectedResponse.categoryId(), result.categoryId()),
+                () -> assertEquals(expectedResponse.categoryName(), result.categoryName())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = Mockito.inOrder(productServiceDomain, productRepo, productMapper);
+        inOrder.verify(productServiceDomain).findById(productId);
+        inOrder.verify(productRepo).save(product);
+        inOrder.verify(productMapper).toProductDTOResponse(product);
+        inOrder.verifyNoMoreInteractions();
+    }
 }
