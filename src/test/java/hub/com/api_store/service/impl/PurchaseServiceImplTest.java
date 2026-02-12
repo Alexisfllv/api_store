@@ -9,8 +9,11 @@ import hub.com.api_store.mapper.PurchaseMapper;
 import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.nums.GlobalUnit;
 import hub.com.api_store.nums.PurchaseStatus;
+import hub.com.api_store.repo.PurchaseRepo;
 import hub.com.api_store.service.domain.PurchaseServiceDomain;
+import hub.com.api_store.util.page.PageResponse;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -18,9 +21,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -30,6 +35,9 @@ public class PurchaseServiceImplTest {
 
     @Mock
     private PurchaseServiceDomain purchaseServiceDomain;
+
+    @Mock
+    private PurchaseRepo purchaseRepo;
 
     @Mock
     private PurchaseMapper purchaseMapper;
@@ -120,6 +128,90 @@ public class PurchaseServiceImplTest {
         inOrder.verify(purchaseMapper).toPurchaseDTOResponse(purchase);
         inOrder.verifyNoMoreInteractions();
 
+    }
+
+    @Nested
+    @DisplayName("GET findAllListPagePurchaseGet")
+    class FindAllListPagePurchaseGetTest {
+        @Test
+        @DisplayName("Should return a page of PurchaseDTOResponse")
+        void shouldReturnPageOfPurchaseDTOResponse() {
+            // Arrange
+            int page = 0;
+            int size = 10;
+            String prop = "id";
+
+            Long purchaseId = 1L;
+            Category category = new Category(1L, "Alimentos", "Productos alimenticios", GlobalStatus.ACTIVE);
+            Product product = new Product(1L, "Arroz Premium", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+            Supplier supplier = new Supplier
+                    (1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+
+            Purchase purchase = new Purchase();
+            purchase.setId(1L);
+            purchase.setQuantity(new BigDecimal("100.000"));
+            purchase.setUnit(GlobalUnit.KG);
+            purchase.setCostUnit(new BigDecimal("3.5000"));
+            purchase.setTotalCost(new BigDecimal("350.0000"));
+            purchase.setLot("LOT-2024-001");
+            purchase.setExpirationDate(LocalDateTime.of(2025, 6, 30, 23, 59, 59));
+            purchase.setWarehouseLocation("A-01-B");
+            purchase.setArrivalDate(LocalDateTime.of(2024, 1, 16, 14, 0, 0));
+            purchase.setPurchaseDate(LocalDateTime.of(2024, 1, 15, 9, 30, 0));
+            purchase.setStatus(PurchaseStatus.RECEIVED);
+            purchase.setInvoiceNumber("INV-2024-0001");
+            purchase.setNotes("Arroz de primera calidad");
+            purchase.setProduct(product);
+            purchase.setSupplier(supplier);
+
+            PurchaseDTOResponse purchaseDTOResponse = new PurchaseDTOResponse(
+                    1L,
+                    new BigDecimal("100.000"),
+                    GlobalUnit.KG,
+                    new BigDecimal("3.5000"),
+                    new BigDecimal("350.0000"),
+                    "LOT-2024-001",
+                    LocalDateTime.of(2025, 6, 30, 23, 59, 59),
+                    "A-01-B",
+                    LocalDateTime.of(2024, 1, 16, 14, 0, 0),
+                    LocalDateTime.of(2024, 1, 15, 9, 30, 0),
+                    "INV-2024-0001",
+                    "Arroz de primera calidad",
+                    PurchaseStatus.RECEIVED,
+                    product.getId(),
+                    product.getName(),
+                    supplier.getId(),
+                    supplier.getName()
+            );
+            List<Purchase> purchaseList = List.of(purchase);
+
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, prop));
+            Page<Purchase> purchasePage =  new PageImpl<>(purchaseList,pageable, purchaseList.size());
+
+            when(purchaseRepo.findAll(pageable)).thenReturn(purchasePage);
+            when(purchaseMapper.toPurchaseDTOResponse(purchase)).thenReturn(purchaseDTOResponse);
+
+            // Act
+            PageResponse<PurchaseDTOResponse> result = purchaseServiceImpl.findAllListPagePurchase(page, size, prop);
+
+            // Assert
+            assertAll(
+                    () -> assertNotNull(result),
+                    () -> assertEquals(1, result.content().size()),
+                    () -> assertEquals(purchaseDTOResponse, result.content().get(0)),
+                    () -> assertEquals(page, result.page()),
+                    () -> assertEquals(size, result.size()),
+                    () -> assertEquals(purchaseList.size(), result.totalElements()),
+                    () -> assertEquals(1, result.totalPages())
+            );
+
+            // InOrder & Verify
+            InOrder inOrder = Mockito.inOrder(purchaseRepo, purchaseMapper);
+            inOrder.verify(purchaseRepo).findAll(pageable);
+            inOrder.verify(purchaseMapper).toPurchaseDTOResponse(purchase);
+            inOrder.verifyNoMoreInteractions();
+        }
     }
 
 }
