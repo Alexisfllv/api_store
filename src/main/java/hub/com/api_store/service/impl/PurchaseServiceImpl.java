@@ -1,11 +1,19 @@
 package hub.com.api_store.service.impl;
 
+import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
+import hub.com.api_store.entity.Category;
+import hub.com.api_store.entity.Product;
 import hub.com.api_store.entity.Purchase;
+import hub.com.api_store.entity.Supplier;
 import hub.com.api_store.mapper.PurchaseMapper;
+import hub.com.api_store.nums.PurchaseStatus;
 import hub.com.api_store.repo.PurchaseRepo;
+import hub.com.api_store.service.InventoryService;
 import hub.com.api_store.service.PurchaseService;
+import hub.com.api_store.service.domain.ProductServiceDomain;
 import hub.com.api_store.service.domain.PurchaseServiceDomain;
+import hub.com.api_store.service.domain.SupplierServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +35,11 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final PurchaseRepo purchaseRepo;
     private final PurchaseMapper purchaseMapper;
     private final PurchaseServiceDomain purchaseServiceDomain;
+    private final ProductServiceDomain productServiceDomain;
+    private final SupplierServiceDomain supplierServiceDomain;
+
+    // service inventory main
+    private final InventoryService inventoryService;
 
     // GET
     @Override
@@ -48,5 +64,35 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchasePageResponse.getTotalPages()
         );
     }
+
+    // POST
+    @Transactional
+    @Override
+    public PurchaseDTOResponse createPurchase(PurchaseDTORequest purchaseDTORequest) {
+        Product productExist = productServiceDomain.findById(purchaseDTORequest.productId());
+        Supplier supplierExist = supplierServiceDomain.findByIdSupplier(purchaseDTORequest.supplierId());
+
+        Purchase purchaseToSave = purchaseMapper.toPurchase(purchaseDTORequest, productExist, supplierExist);
+        // Calculate total cost
+        purchaseToSave.setTotalCost(purchaseToSave.getQuantity().multiply(purchaseToSave.getCostUnit()));
+        // Set purchase date to current date and time
+        purchaseToSave.setPurchaseDate(LocalDateTime.now());
+        // Lot
+        purchaseToSave.setLot("LOT-"+ LocalDate.now().getYear()+"-"+ purchaseToSave.getLot());
+        // invoice number
+        purchaseToSave.setInvoiceNumber("INV-"+ LocalDate.now().getYear()+"-"+purchaseToSave.getInvoiceNumber());
+        // status
+        purchaseToSave.setStatus(PurchaseStatus.RECEIVED);
+
+        // save
+        Purchase purchaseSaved = purchaseRepo.save(purchaseToSave);
+
+        // create Inventory
+        inventoryService.addStockFromPurchase(purchaseSaved);
+
+        PurchaseDTOResponse purchaseDTOResponse = purchaseMapper.toPurchaseDTOResponse(purchaseSaved);
+        return purchaseDTOResponse;
+    }
+
 
 }
