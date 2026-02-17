@@ -2,10 +2,7 @@ package hub.com.api_store.mapper;
 
 import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
-import hub.com.api_store.entity.Category;
-import hub.com.api_store.entity.Product;
-import hub.com.api_store.entity.Purchase;
-import hub.com.api_store.entity.Supplier;
+import hub.com.api_store.entity.*;
 import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.nums.GlobalUnit;
 import hub.com.api_store.nums.PurchaseStatus;
@@ -40,6 +37,10 @@ public class PurchaseMapperTest {
         Supplier supplier = new Supplier
                 (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
 
+        Inventory inventory = new Inventory(
+                1L,new BigDecimal("10.500"),GlobalUnit.KG,"A-01-B","LOT-2026-022",
+                LocalDateTime.of(2027, 12, 10, 14, 0, 0),product
+        );
 
         Purchase purchase = new Purchase();
         purchase.setId(1L);
@@ -57,6 +58,7 @@ public class PurchaseMapperTest {
         purchase.setNotes("Arroz de primera calidad");
         purchase.setProduct(product);
         purchase.setSupplier(supplier);
+        purchase.setInventory(inventory);
 
         // Act
         PurchaseDTOResponse result = purchaseMapper.toPurchaseDTOResponse(purchase);
@@ -80,7 +82,9 @@ public class PurchaseMapperTest {
                 () -> assertEquals(1L, result.productId()),
                 () -> assertEquals("Arroz Premium", result.productName()),
                 () -> assertEquals(1L, result.supplierId()),
-                () -> assertEquals("Fring", result.supplierName())
+                () -> assertEquals("Fring", result.supplierName()),
+                () -> assertEquals(1L, result.inventoryId()),
+                () -> assertEquals("A-01-B", result.inventoryWarehouse())
         );
 
     }

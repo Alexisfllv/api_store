@@ -19,7 +19,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Transactional
     @Override
-    public void addStockFromPurchase(Purchase purchase) {
+    public Inventory addStockFromPurchase(Purchase purchase) {
 
         Optional<Inventory> existing = inventoryRepo
                 .findByProductAndLotAndWarehouse(
@@ -34,7 +34,7 @@ public class InventoryServiceImpl implements InventoryService {
             inventory.setQuantity(
                     inventory.getQuantity().add(purchase.getQuantity())
             );
-            inventoryRepo.save(inventory);
+            return inventoryRepo.save(inventory);
         } else {
             // Crear nuevo
             Inventory inventory = new Inventory();
@@ -44,7 +44,7 @@ public class InventoryServiceImpl implements InventoryService {
             inventory.setLot(purchase.getLot());
             inventory.setWarehouse(purchase.getWarehouseLocation());
             inventory.setExpirationDate(purchase.getExpirationDate());
-            inventoryRepo.save(inventory);
+            return inventoryRepo.save(inventory);
         }
     }
 }

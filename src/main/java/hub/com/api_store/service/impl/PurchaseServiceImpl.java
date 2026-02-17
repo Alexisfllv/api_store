@@ -2,10 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
-import hub.com.api_store.entity.Category;
-import hub.com.api_store.entity.Product;
-import hub.com.api_store.entity.Purchase;
-import hub.com.api_store.entity.Supplier;
+import hub.com.api_store.entity.*;
 import hub.com.api_store.mapper.PurchaseMapper;
 import hub.com.api_store.nums.PurchaseStatus;
 import hub.com.api_store.repo.PurchaseRepo;
@@ -87,8 +84,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         // save
         Purchase purchaseSaved = purchaseRepo.save(purchaseToSave);
 
-        // create Inventory
-        inventoryService.addStockFromPurchase(purchaseSaved);
+        Inventory createdInventory = inventoryService.addStockFromPurchase(purchaseSaved);
+        purchaseSaved.setInventory(createdInventory);
+
+        // save
+        purchaseSaved = purchaseRepo.save(purchaseSaved);
 
         PurchaseDTOResponse purchaseDTOResponse = purchaseMapper.toPurchaseDTOResponse(purchaseSaved);
         return purchaseDTOResponse;

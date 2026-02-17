@@ -33,5 +33,8 @@ public record PurchaseDTOResponse(
         Long productId,
         String productName,
         Long supplierId,
-        String supplierName
+        String supplierName,
+
+        Long inventoryId,
+        String inventoryWarehouse
 ) {}
