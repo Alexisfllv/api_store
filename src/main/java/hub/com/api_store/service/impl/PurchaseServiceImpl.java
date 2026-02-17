@@ -88,7 +88,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseSaved.setInventory(createdInventory);
 
         // save
-        purchaseSaved = purchaseRepo.save(purchaseToSave);
+        purchaseSaved = purchaseRepo.save(purchaseSaved);
 
         PurchaseDTOResponse purchaseDTOResponse = purchaseMapper.toPurchaseDTOResponse(purchaseSaved);
         return purchaseDTOResponse;
