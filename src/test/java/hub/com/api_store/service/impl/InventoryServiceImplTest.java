@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
@@ -33,13 +35,15 @@ public class InventoryServiceImplTest {
     @Nested
     class addStockFromPurchase {
         @Test
+        @DisplayName("Debe crear un nuevo inventario cuando no existe duplicado")
         void shouldCreateNewInventoryWhenNoDuplicateExists() {
             // Arrange
             Category category = new Category(1L, "Alimentos", "Productos alimenticios", GlobalStatus.ACTIVE);
             Product product = new Product(1L, "Arroz Premium", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
 
-            Supplier supplier = new Supplier
-                    (1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+            Supplier supplier = new Supplier(
+                    1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE
+            );
 
             Purchase purchase = new Purchase(
                     1L,
@@ -56,19 +60,45 @@ public class InventoryServiceImplTest {
                     "INV-2026-0001",
                     "Arroz de primera calidad",
                     product,
-                    supplier
+                    supplier,
+                    null // inventory aún no existe
             );
 
+            // Mock: No existe inventory previo
             when(inventoryRepo.findByProductAndLotAndWarehouse(
                     purchase.getProduct(),
                     purchase.getLot(),
                     purchase.getWarehouseLocation()
             )).thenReturn(Optional.empty());
 
+            // Mock: Simular que el save retorna un inventory con ID asignado
+            when(inventoryRepo.save(any(Inventory.class))).thenAnswer(invocation -> {
+                Inventory saved = invocation.getArgument(0);
+                saved.setId(1L); // Simula que la BD asigna el ID
+                return saved;
+            });
+
             // Act
-            inventoryService.addStockFromPurchase(purchase);
+            Inventory result = inventoryService.addStockFromPurchase(purchase);
+
             // Assert
+            assertAll(
+                    () -> assertEquals(1L, result.getId()),
+                    () -> assertEquals(purchase.getQuantity(), result.getQuantity()),
+                    () -> assertEquals(purchase.getUnit(), result.getUnit()),
+                    () -> assertEquals(purchase.getLot(), result.getLot()),
+                    () -> assertEquals(purchase.getWarehouseLocation(), result.getWarehouse()),
+                    () -> assertEquals(purchase.getExpirationDate(), result.getExpirationDate()),
+                    () -> assertEquals(purchase.getProduct(), result.getProduct())
+            );
+
             // Verify
+            verify(inventoryRepo, times(1)).findByProductAndLotAndWarehouse(
+                    purchase.getProduct(),
+                    purchase.getLot(),
+                    purchase.getWarehouseLocation()
+            );
+
             verify(inventoryRepo, times(1)).save(argThat(inventory ->
                     inventory.getProduct().equals(purchase.getProduct()) &&
                             inventory.getQuantity().equals(purchase.getQuantity()) &&
@@ -83,15 +113,26 @@ public class InventoryServiceImplTest {
         @DisplayName("Debe sumar la cantidad cuando ya existe un inventario con el mismo producto, lote y ubicación")
         void shouldAddQuantityWhenInventoryAlreadyExists() {
             // Arrange
-
             Category category = new Category(1L, "Alimentos", "Productos alimenticios", GlobalStatus.ACTIVE);
             Product product = new Product(1L, "Arroz Premium", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
 
-            Supplier supplier = new Supplier
-                    (1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+            Supplier supplier = new Supplier(
+                    1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE
+            );
 
+            // Inventory que YA EXISTE en la BD con 50 KG
+            Inventory existingInventory = new Inventory();
+            existingInventory.setId(1L);
+            existingInventory.setProduct(product);
+            existingInventory.setQuantity(new BigDecimal("50.000"));
+            existingInventory.setUnit(GlobalUnit.KG);
+            existingInventory.setLot("LOT-2026-001");
+            existingInventory.setWarehouse("A-01-B");
+            existingInventory.setExpirationDate(LocalDateTime.of(2027, 12, 10, 14, 0, 0));
+
+            // Nuevo purchase que aporta 100 KG al mismo lote y ubicación
             Purchase purchase = new Purchase(
-                    1L,
+                    2L,
                     new BigDecimal("100.000"),
                     GlobalUnit.KG,
                     new BigDecimal("3.5000"),
@@ -103,30 +144,45 @@ public class InventoryServiceImplTest {
                     LocalDateTime.of(2026, 6, 10, 8, 0, 0),
                     PurchaseStatus.RECEIVED,
                     "INV-2026-0001",
-                    "Arroz de primera calidad",
+                    "Segundo lote del mismo producto",
                     product,
-                    supplier
+                    supplier,
+                    existingInventory
             );
 
-            Inventory existingInventory = new Inventory();
-            existingInventory.setProduct(product);
-            existingInventory.setQuantity(new BigDecimal("50.000"));
-            existingInventory.setUnit(GlobalUnit.KG);
-            existingInventory.setLot("LOT-2026-001");
-            existingInventory.setWarehouse("A-01-B");
-
+            // Mock: SÍ existe inventory previo
             when(inventoryRepo.findByProductAndLotAndWarehouse(
                     purchase.getProduct(),
                     purchase.getLot(),
                     purchase.getWarehouseLocation()
             )).thenReturn(Optional.of(existingInventory));
 
+            // Mock: El save retorna el mismo inventory actualizado
+            when(inventoryRepo.save(existingInventory)).thenReturn(existingInventory);
+
             // Act
-            inventoryService.addStockFromPurchase(purchase);
+            Inventory result = inventoryService.addStockFromPurchase(purchase);
+
+            // Assert - Debe tener 150 KG (50 existentes + 100 nuevos)
+            assertAll(
+                    () -> assertEquals(1L, result.getId()),
+                    () -> assertEquals(new BigDecimal("150.000"), result.getQuantity()),
+                    () -> assertEquals(GlobalUnit.KG, result.getUnit()),
+                    () -> assertEquals("LOT-2026-001", result.getLot()),
+                    () -> assertEquals("A-01-B", result.getWarehouse()),
+                    () -> assertEquals(product, result.getProduct())
+            );
 
             // Verify
+            verify(inventoryRepo, times(1)).findByProductAndLotAndWarehouse(
+                    purchase.getProduct(),
+                    purchase.getLot(),
+                    purchase.getWarehouseLocation()
+            );
+
             verify(inventoryRepo, times(1)).save(argThat(inventory ->
-                    inventory.getQuantity().equals(new BigDecimal("150.000")) // 50 + 100
+                    inventory.getId().equals(1L) &&
+                            inventory.getQuantity().equals(new BigDecimal("150.000"))
             ));
         }
     }
