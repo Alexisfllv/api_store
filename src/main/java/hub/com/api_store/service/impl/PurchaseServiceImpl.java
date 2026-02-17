@@ -2,9 +2,11 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
+import hub.com.api_store.dto.purchase.PurchaseDTOUpdate;
 import hub.com.api_store.entity.*;
 import hub.com.api_store.mapper.PurchaseMapper;
 import hub.com.api_store.nums.PurchaseStatus;
+import hub.com.api_store.repo.InventoryRepo;
 import hub.com.api_store.repo.PurchaseRepo;
 import hub.com.api_store.service.InventoryService;
 import hub.com.api_store.service.PurchaseService;
@@ -37,6 +39,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     // service inventory main
     private final InventoryService inventoryService;
+    private final InventoryRepo inventoryRepo;
 
     // GET
     @Override
@@ -91,6 +94,46 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseSaved = purchaseRepo.save(purchaseSaved);
 
         PurchaseDTOResponse purchaseDTOResponse = purchaseMapper.toPurchaseDTOResponse(purchaseSaved);
+        return purchaseDTOResponse;
+    }
+
+    @Transactional
+    @Override
+    public PurchaseDTOResponse updatePurchase(Long id, PurchaseDTOUpdate purchaseDTOUpdate) {
+        // Validar existencia de purchase
+        Purchase purchaseExist = purchaseServiceDomain.findPurchaseById(id);
+
+        // Validar existencia de product y supplier
+        Product productExist = productServiceDomain.findById(purchaseDTOUpdate.productId());
+        Supplier supplierExist = supplierServiceDomain.findByIdSupplier(purchaseDTOUpdate.supplierId());
+
+        purchaseExist.setProduct(productExist);
+        purchaseExist.setSupplier(supplierExist);
+        purchaseExist.setQuantity(purchaseDTOUpdate.quantity());
+        purchaseExist.setUnit(purchaseDTOUpdate.unit());
+        purchaseExist.setCostUnit(purchaseDTOUpdate.costUnit());
+        purchaseExist.setLot("LOT-"+ LocalDate.now().getYear()+"-"+ purchaseDTOUpdate.lot());
+        purchaseExist.setExpirationDate(purchaseDTOUpdate.expirationDate());
+        purchaseExist.setWarehouseLocation(purchaseDTOUpdate.warehouseLocation());
+        purchaseExist.setArrivalDate(purchaseDTOUpdate.arrivalDate());
+        purchaseExist.setPurchaseDate(purchaseDTOUpdate.purchaseDate());
+        purchaseExist.setInvoiceNumber("INV-"+ LocalDate.now().getYear()+"-"+purchaseDTOUpdate.invoiceNumber());
+        purchaseExist.setStatus(purchaseDTOUpdate.purchaseStatus());
+        purchaseExist.setNotes(purchaseDTOUpdate.notes());
+        purchaseExist.setTotalCost(purchaseDTOUpdate.quantity().multiply(purchaseDTOUpdate.costUnit()));
+
+        // update inventory
+        Inventory inventory = purchaseExist.getInventory();
+        inventory.setProduct(productExist);
+        inventory.setQuantity(purchaseDTOUpdate.quantity());
+        inventory.setUnit(purchaseDTOUpdate.unit());
+        inventory.setLot(purchaseExist.getLot());
+        inventory.setWarehouse(purchaseDTOUpdate.warehouseLocation());
+        inventory.setExpirationDate(purchaseDTOUpdate.expirationDate());
+
+        inventoryRepo.save(inventory);
+        Purchase update = purchaseRepo.save(purchaseExist);
+        PurchaseDTOResponse purchaseDTOResponse = purchaseMapper.toPurchaseDTOResponse(update);
         return purchaseDTOResponse;
     }
 
