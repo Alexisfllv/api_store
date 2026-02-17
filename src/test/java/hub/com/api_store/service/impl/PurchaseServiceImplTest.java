@@ -2,10 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
-import hub.com.api_store.entity.Category;
-import hub.com.api_store.entity.Product;
-import hub.com.api_store.entity.Purchase;
-import hub.com.api_store.entity.Supplier;
+import hub.com.api_store.entity.*;
 import hub.com.api_store.mapper.PurchaseMapper;
 import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.nums.GlobalUnit;
@@ -69,6 +66,10 @@ public class PurchaseServiceImplTest {
         Supplier supplier = new Supplier
                 (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
 
+        Inventory inventory = new Inventory(
+                1L,new BigDecimal("10.500"),GlobalUnit.KG,"A-01-B","LOT-2026-022",
+                LocalDateTime.of(2027, 12, 10, 14, 0, 0),product
+        );
 
         Purchase purchase = new Purchase();
         purchase.setId(1L);
@@ -104,7 +105,9 @@ public class PurchaseServiceImplTest {
                 product.getId(),
                 product.getName(),
                 supplier.getId(),
-                supplier.getName()
+                supplier.getName(),
+                inventory.getId(),
+                inventory.getWarehouse()
         );
 
         when(purchaseServiceDomain.findPurchaseById(purchaseId)).thenReturn(purchase);
@@ -132,7 +135,9 @@ public class PurchaseServiceImplTest {
                 () -> assertEquals(purchaseDTOResponse.productId(), result.productId()),
                 () -> assertEquals(purchaseDTOResponse.productName(), result.productName()),
                 () -> assertEquals(purchaseDTOResponse.supplierId(), result.supplierId()),
-                () -> assertEquals(purchaseDTOResponse.supplierName(), result.supplierName())
+                () -> assertEquals(purchaseDTOResponse.supplierName(), result.supplierName()),
+                () -> assertEquals(purchaseDTOResponse.inventoryId(), result.inventoryId()),
+                () -> assertEquals(purchaseDTOResponse.inventoryWarehouse(), result.inventoryWarehouse())
         );
 
         // InOrder & Verify
@@ -160,6 +165,11 @@ public class PurchaseServiceImplTest {
 
             Supplier supplier = new Supplier
                     (1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+
+            Inventory inventory = new Inventory(
+                    1L,new BigDecimal("10.500"),GlobalUnit.KG,"A-01-B","LOT-2026-022",
+                    LocalDateTime.of(2027, 12, 10, 14, 0, 0),product
+            );
 
             Purchase purchase = new Purchase();
             purchase.setId(1L);
@@ -195,7 +205,9 @@ public class PurchaseServiceImplTest {
                     product.getId(),
                     product.getName(),
                     supplier.getId(),
-                    supplier.getName()
+                    supplier.getName(),
+                    inventory.getId(),
+                    inventory.getWarehouse()
             );
             List<Purchase> purchaseList = List.of(purchase);
 
@@ -237,6 +249,10 @@ public class PurchaseServiceImplTest {
         Supplier supplier = new Supplier
                 (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
 
+        Inventory inventory = new Inventory(
+                1L,new BigDecimal("10.500"),GlobalUnit.KG,"A-01-B","LOT-2026-022",
+                LocalDateTime.of(2027, 12, 10, 14, 0, 0),product
+        );
 
         Purchase purchase = new Purchase();
         purchase.setId(1L);
@@ -272,7 +288,9 @@ public class PurchaseServiceImplTest {
                 product.getId(),
                 product.getName(),
                 supplier.getId(),
-                supplier.getName()
+                supplier.getName(),
+                inventory.getId(),
+                inventory.getWarehouse()
         );
 
         PurchaseDTORequest request = new PurchaseDTORequest(
@@ -292,6 +310,8 @@ public class PurchaseServiceImplTest {
         when(productServiceDomain.findById(request.productId())).thenReturn(product);
         when(supplierServiceDomain.findByIdSupplier(request.supplierId())).thenReturn(supplier);
         when(purchaseMapper.toPurchase(request,product,supplier)).thenReturn(purchase);
+        when(purchaseRepo.save(purchase)).thenReturn(purchase);
+        when(inventoryServiceImpl.addStockFromPurchase(purchase)).thenReturn(inventory);
         when(purchaseRepo.save(purchase)).thenReturn(purchase);
         when(purchaseMapper.toPurchaseDTOResponse(purchase)).thenReturn(purchaseDTOResponse);
         // Act
@@ -315,14 +335,18 @@ public class PurchaseServiceImplTest {
                 () -> assertEquals(purchaseDTOResponse.productId(),result.productId()),
                 () -> assertEquals(purchaseDTOResponse.productName(),result.productName()),
                 () -> assertEquals(purchaseDTOResponse.supplierId(),result.supplierId()),
-                () -> assertEquals(purchaseDTOResponse.supplierName(),result.supplierName())
+                () -> assertEquals(purchaseDTOResponse.supplierName(),result.supplierName()),
+                () -> assertEquals(purchaseDTOResponse.inventoryId(),result.inventoryId()),
+                () -> assertEquals(purchaseDTOResponse.inventoryWarehouse(),result.inventoryWarehouse())
         );
 
         // Verify
-        InOrder inOrder = Mockito.inOrder(productServiceDomain, supplierServiceDomain, purchaseMapper, purchaseRepo);
+        InOrder inOrder = Mockito.inOrder(productServiceDomain, supplierServiceDomain, purchaseMapper, purchaseRepo,inventoryServiceImpl);
         inOrder.verify(productServiceDomain).findById(request.productId());
         inOrder.verify(supplierServiceDomain).findByIdSupplier(request.supplierId());
         inOrder.verify(purchaseMapper).toPurchase(request, product, supplier);
+        inOrder.verify(purchaseRepo).save(purchase);
+        inOrder.verify(inventoryServiceImpl).addStockFromPurchase(purchase);
         inOrder.verify(purchaseRepo).save(purchase);
         inOrder.verify(purchaseMapper).toPurchaseDTOResponse(purchase);
         inOrder.verifyNoMoreInteractions();
