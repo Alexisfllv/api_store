@@ -2,6 +2,7 @@ package hub.com.api_store.controller;
 
 import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
+import hub.com.api_store.dto.purchase.PurchaseDTOUpdate;
 import hub.com.api_store.service.PurchaseService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
@@ -45,6 +46,15 @@ public class PurchaseController {
         PurchaseDTOResponse purchaseDTOResponse = purchaseService.createPurchase(purchaseDTORequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new GenericResponse<>(StatusApi.CREATED, purchaseDTOResponse)
+        );
+    }
+
+    // PUT
+    @PutMapping("/{id}")
+    public  ResponseEntity<GenericResponse<PurchaseDTOResponse>> updatePurchasePut(@PathVariable Long id, @Valid @RequestBody PurchaseDTOUpdate purchaseDTOUpdate){
+        PurchaseDTOResponse purchaseDTOResponse = purchaseService.updatePurchase(id, purchaseDTOUpdate);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.UPDATED, purchaseDTOResponse)
         );
     }
 

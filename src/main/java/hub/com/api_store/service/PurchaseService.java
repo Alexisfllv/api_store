@@ -2,6 +2,7 @@ package hub.com.api_store.service;
 
 import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
+import hub.com.api_store.dto.purchase.PurchaseDTOUpdate;
 import hub.com.api_store.util.page.PageResponse;
 import org.springframework.data.domain.PageRequest;
 
@@ -13,4 +14,7 @@ public interface PurchaseService {
 
     // POST
     PurchaseDTOResponse createPurchase(PurchaseDTORequest purchaseDTORequest);
+
+    // PUT
+    PurchaseDTOResponse updatePurchase(Long id, PurchaseDTOUpdate purchaseDTOUpdate);
 }
