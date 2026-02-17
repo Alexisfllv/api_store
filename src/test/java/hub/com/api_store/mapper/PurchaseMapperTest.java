@@ -1,5 +1,6 @@
 package hub.com.api_store.mapper;
 
+import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.entity.Product;
@@ -80,6 +81,53 @@ public class PurchaseMapperTest {
                 () -> assertEquals("Arroz Premium", result.productName()),
                 () -> assertEquals(1L, result.supplierId()),
                 () -> assertEquals("Fring", result.supplierName())
+        );
+
+    }
+
+    @Test
+    @DisplayName("Test Mapped entity <- request")
+    void toPurchaseMapped(){
+        // Arrange
+        Category category = new Category(1L, "Alimentos", "Productos alimenticios", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "Arroz Premium", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        Supplier supplier = new Supplier
+                (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+
+
+        PurchaseDTORequest request = new PurchaseDTORequest(
+                new BigDecimal("100.000"),
+                GlobalUnit.KG,
+                new BigDecimal("3.5000"),
+                "LOT-2024-001",
+                LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                "A-01-B",
+                LocalDateTime.of(2026, 1, 16, 14, 0, 0),
+                "INV-2024-0001",
+                "Arroz de primera calidad",
+                product.getId(),
+                supplier.getId()
+        );
+
+
+        // Act
+        Purchase result = purchaseMapper.toPurchase(request, product, supplier);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(new BigDecimal("100.000"), result.getQuantity()),
+                () -> assertEquals(GlobalUnit.KG, result.getUnit()),
+                () -> assertEquals(new BigDecimal("3.5000"), result.getCostUnit()),
+                () -> assertEquals("LOT-2024-001", result.getLot()),
+                () -> assertEquals(LocalDateTime.of(2026, 6, 30, 23, 59, 59), result.getExpirationDate()),
+                () -> assertEquals("A-01-B", result.getWarehouseLocation()),
+                () -> assertEquals(LocalDateTime.of(2026, 1, 16, 14, 0, 0), result.getArrivalDate()),
+                () -> assertEquals("INV-2024-0001", result.getInvoiceNumber()),
+                () -> assertEquals("Arroz de primera calidad", result.getNotes()),
+                () -> assertEquals(product, result.getProduct()),
+                () -> assertEquals(supplier, result.getSupplier())
         );
 
     }
