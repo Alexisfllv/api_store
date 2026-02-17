@@ -28,7 +28,9 @@ public class PurchaseMapper {
                 purchase.getProduct().getId(),
                 purchase.getProduct().getName(),
                 purchase.getSupplier().getId(),
-                purchase.getSupplier().getName()
+                purchase.getSupplier().getName(),
+                purchase.getInventory().getId(),
+                purchase.getInventory().getWarehouse()
         );
     }
 
@@ -48,7 +50,8 @@ public class PurchaseMapper {
                 purchaseDTORequest.invoiceNumber(),
                 purchaseDTORequest.notes(),
                 product,
-                supplier
+                supplier,
+                null
         );
     }
 }
