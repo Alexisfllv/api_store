@@ -1,10 +1,12 @@
 package hub.com.api_store.controller;
 
+import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
 import hub.com.api_store.service.PurchaseService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,15 @@ public class PurchaseController {
         PageResponse<PurchaseDTOResponse> pageResponse = purchaseService.findAllListPagePurchase(page, size, prop);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, pageResponse)
+        );
+    }
+
+    // POST
+    @PostMapping()
+    public ResponseEntity<GenericResponse<PurchaseDTOResponse>> createPurchasePost(@Valid @RequestBody PurchaseDTORequest purchaseDTORequest){
+        PurchaseDTOResponse purchaseDTOResponse = purchaseService.createPurchase(purchaseDTORequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new GenericResponse<>(StatusApi.CREATED, purchaseDTOResponse)
         );
     }
 
