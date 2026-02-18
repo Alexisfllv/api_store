@@ -599,4 +599,99 @@ public class PurchaseServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("GET findPurchaseListBySupplierId")
+    void findPurchaseListBySupplierId() {
+        // Arrange
+
+        Category category = new Category(1L, "Alimentos", "Productos alimenticios", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "Arroz Premium", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        Supplier supplier = new Supplier
+                (1L,"Fring","+51920287650","Fring@email.com","Lima-Lima", GlobalStatus.ACTIVE);
+
+        Inventory inventory = new Inventory(
+                1L,new BigDecimal("10.500"),GlobalUnit.KG,"A-01-B","LOT-2026-022",
+                LocalDateTime.of(2027, 12, 10, 14, 0, 0),product
+        );
+
+        Purchase purchase = new Purchase();
+        purchase.setId(1L);
+        purchase.setQuantity(new BigDecimal("100.000"));
+        purchase.setUnit(GlobalUnit.KG);
+        purchase.setCostUnit(new BigDecimal("3.5000"));
+        purchase.setTotalCost(new BigDecimal("350.0000"));
+        purchase.setLot("LOT-2024-001");
+        purchase.setExpirationDate(LocalDateTime.of(2025, 6, 30, 23, 59, 59));
+        purchase.setWarehouseLocation("A-01-B");
+        purchase.setArrivalDate(LocalDateTime.of(2024, 1, 16, 14, 0, 0));
+        purchase.setPurchaseDate(LocalDateTime.of(2024, 1, 15, 9, 30, 0));
+        purchase.setStatus(PurchaseStatus.RECEIVED);
+        purchase.setInvoiceNumber("INV-2024-0001");
+        purchase.setNotes("Arroz de primera calidad");
+        purchase.setProduct(product);
+        purchase.setSupplier(supplier);
+
+        PurchaseDTOResponse purchaseDTOResponse = new PurchaseDTOResponse(
+                1L,
+                new BigDecimal("100.000"),
+                GlobalUnit.KG,
+                new BigDecimal("3.5000"),
+                new BigDecimal("350.0000"),
+                "LOT-2024-001",
+                LocalDateTime.of(2025, 6, 30, 23, 59, 59),
+                "A-01-B",
+                LocalDateTime.of(2024, 1, 16, 14, 0, 0),
+                LocalDateTime.of(2024, 1, 15, 9, 30, 0),
+                "INV-2024-0001",
+                "Arroz de primera calidad",
+                PurchaseStatus.RECEIVED,
+                product.getId(),
+                product.getName(),
+                supplier.getId(),
+                supplier.getName(),
+                inventory.getId(),
+                inventory.getWarehouse()
+        );
+
+        List<Purchase> purchaseList = List.of(purchase);
+        List<PurchaseDTOResponse> listPurchases = List.of(purchaseDTOResponse);
+        when(purchaseRepo.findBySupplierId(1L)).thenReturn(purchaseList);
+        when(purchaseMapper.toPurchaseDTOResponse(purchase)).thenReturn(purchaseDTOResponse);
+        // Act
+        List<PurchaseDTOResponse> resultList = purchaseServiceImpl.findPurchaseListBySupplierId(1L, 10);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(listPurchases.size(), resultList.size()),
+                () -> assertEquals(purchaseDTOResponse, resultList.get(0)),
+                () -> assertEquals(purchaseDTOResponse.id(), resultList.get(0).id()),
+                () -> assertEquals(purchaseDTOResponse.quantity(), resultList.get(0).quantity()),
+                () -> assertEquals(purchaseDTOResponse.unit(), resultList.get(0).unit()),
+                () -> assertEquals(purchaseDTOResponse.costUnit(), resultList.get(0).costUnit()),
+                () -> assertEquals(purchaseDTOResponse.totalCost(), resultList.get(0).totalCost()),
+                () -> assertEquals(purchaseDTOResponse.lot(), resultList.get(0).lot()),
+                () -> assertEquals(purchaseDTOResponse.expirationDate(), resultList.get(0).expirationDate()),
+                () -> assertEquals(purchaseDTOResponse.warehouseLocation(), resultList.get(0).warehouseLocation()),
+                () -> assertEquals(purchaseDTOResponse.arrivalDate(), resultList.get(0).arrivalDate()),
+                () -> assertEquals(purchaseDTOResponse.purchaseDate(), resultList.get(0).purchaseDate()),
+                () -> assertEquals(purchaseDTOResponse.invoiceNumber(), resultList.get(0).invoiceNumber()),
+                () -> assertEquals(purchaseDTOResponse.notes(), resultList.get(0).notes()),
+                () -> assertEquals(purchaseDTOResponse.purchaseStatus(), resultList.get(0).purchaseStatus()),
+                () -> assertEquals(purchaseDTOResponse.productId(), resultList.get(0).productId()),
+                () -> assertEquals(purchaseDTOResponse.productName(), resultList.get(0).productName()),
+                () -> assertEquals(purchaseDTOResponse.supplierId(), resultList.get(0).supplierId()),
+                () -> assertEquals(purchaseDTOResponse.supplierName(), resultList.get(0).supplierName()),
+                () -> assertEquals(purchaseDTOResponse.inventoryId(), resultList.get(0).inventoryId()),
+                () -> assertEquals(purchaseDTOResponse.inventoryWarehouse(), resultList.get(0).inventoryWarehouse())
+        );
+
+        // Verify
+        InOrder inOrder = Mockito.inOrder(purchaseRepo, purchaseMapper);
+        inOrder.verify(purchaseRepo).findBySupplierId(1L);
+        inOrder.verify(purchaseMapper).toPurchaseDTOResponse(purchase);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 }
