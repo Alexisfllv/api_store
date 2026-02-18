@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +64,16 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchasePageResponse.getTotalElements(),
                 purchasePageResponse.getTotalPages()
         );
+    }
+
+    @Override
+    public List<PurchaseDTOResponse> findPurchaseListByProductId(Long productId, int limit) {
+
+        List<Purchase> purchaseList = purchaseRepo.findByProductId(productId);
+        return purchaseList.stream()
+                .map(purchaseMapper::toPurchaseDTOResponse)
+                .limit(limit)
+                .toList();
     }
 
     // POST
