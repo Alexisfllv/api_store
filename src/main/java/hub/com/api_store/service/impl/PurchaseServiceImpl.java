@@ -85,6 +85,15 @@ public class PurchaseServiceImpl implements PurchaseService {
                 .toList();
     }
 
+    @Override
+    public List<PurchaseDTOResponse> findPurchaseListByRangePurchaseDate(LocalDateTime start, LocalDateTime end, int limit) {
+        List<Purchase> purchaseList = purchaseRepo.findByPurchaseDateBetween(start, end);
+        return purchaseList.stream()
+                .map(purchaseMapper::toPurchaseDTOResponse)
+                .limit(limit)
+                .toList();
+    }
+
     // POST
     @Transactional
     @Override

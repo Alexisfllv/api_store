@@ -6,6 +6,7 @@ import hub.com.api_store.dto.purchase.PurchaseDTOUpdate;
 import hub.com.api_store.util.page.PageResponse;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PurchaseService {
@@ -16,6 +17,8 @@ public interface PurchaseService {
 
     List<PurchaseDTOResponse> findPurchaseListByProductId(Long productId, int limit);
     List<PurchaseDTOResponse> findPurchaseListBySupplierId(Long supplierId, int limit);
+
+    List<PurchaseDTOResponse> findPurchaseListByRangePurchaseDate(LocalDateTime start , LocalDateTime end, int limit);
 
     // POST
     PurchaseDTOResponse createPurchase(PurchaseDTORequest purchaseDTORequest);
