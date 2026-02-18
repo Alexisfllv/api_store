@@ -74,7 +74,7 @@ public class Purchase extends BaseEntity {
             foreignKey = @ForeignKey(name = "fk_purchase_supplier"))
     private Supplier supplier;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inventory_id",
             foreignKey = @ForeignKey(name = "fk_purchase_inventory"))
     private Inventory inventory;
