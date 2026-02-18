@@ -15,6 +15,7 @@ public interface PurchaseService {
     PageResponse<PurchaseDTOResponse> findAllListPagePurchase(int page, int size,String prop);
 
     List<PurchaseDTOResponse> findPurchaseListByProductId(Long productId, int limit);
+    List<PurchaseDTOResponse> findPurchaseListBySupplierId(Long supplierId, int limit);
 
     // POST
     PurchaseDTOResponse createPurchase(PurchaseDTORequest purchaseDTORequest);
