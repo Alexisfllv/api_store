@@ -50,6 +50,15 @@ public class PurchaseController {
                 new GenericResponse<>(StatusApi.SUCCESS, purchaseDTOResponseList)
         );
     }
+    @GetMapping("/supplier/{supplierId}")
+    public ResponseEntity<GenericResponse<List<PurchaseDTOResponse>>> findPurchaseListBySupplierIdGet(
+            @PathVariable Long supplierId, @RequestParam(defaultValue = "10") Integer limit) {
+        java.util.List<PurchaseDTOResponse> purchaseDTOResponseList = purchaseService.findPurchaseListBySupplierId(supplierId, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, purchaseDTOResponseList)
+        );
+    }
+
     // POST
     @PostMapping()
     public ResponseEntity<GenericResponse<PurchaseDTOResponse>> createPurchasePost(@Valid @RequestBody PurchaseDTORequest purchaseDTORequest){

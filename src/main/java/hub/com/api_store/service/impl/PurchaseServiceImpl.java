@@ -76,6 +76,15 @@ public class PurchaseServiceImpl implements PurchaseService {
                 .toList();
     }
 
+    @Override
+    public List<PurchaseDTOResponse> findPurchaseListBySupplierId(Long supplierId, int limit) {
+        List<Purchase> purchaseList = purchaseRepo.findBySupplierId(supplierId);
+        return purchaseList.stream()
+                .map(purchaseMapper::toPurchaseDTOResponse)
+                .limit(limit)
+                .toList();
+    }
+
     // POST
     @Transactional
     @Override
