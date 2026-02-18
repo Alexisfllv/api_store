@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/purchases")
@@ -40,6 +42,14 @@ public class PurchaseController {
         );
     }
 
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<GenericResponse<List<PurchaseDTOResponse>>> findPurchaseListByProductIdGet(
+            @PathVariable Long productId, @RequestParam(defaultValue = "10") Integer limit) {
+        java.util.List<PurchaseDTOResponse> purchaseDTOResponseList = purchaseService.findPurchaseListByProductId(productId, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, purchaseDTOResponseList)
+        );
+    }
     // POST
     @PostMapping()
     public ResponseEntity<GenericResponse<PurchaseDTOResponse>> createPurchasePost(@Valid @RequestBody PurchaseDTORequest purchaseDTORequest){
