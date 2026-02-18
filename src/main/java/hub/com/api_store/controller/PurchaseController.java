@@ -9,10 +9,12 @@ import hub.com.api_store.util.response.GenericResponse;
 import hub.com.api_store.util.response.StatusApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -56,6 +58,17 @@ public class PurchaseController {
         java.util.List<PurchaseDTOResponse> purchaseDTOResponseList = purchaseService.findPurchaseListBySupplierId(supplierId, limit);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, purchaseDTOResponseList)
+        );
+    }
+
+    @GetMapping("/purchase-date/range")
+    public ResponseEntity<GenericResponse<List<PurchaseDTOResponse>>> findPurchaseListByRangePurchaseDateGet(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @RequestParam(defaultValue = "10") Integer limit) {
+        List<PurchaseDTOResponse> response = purchaseService.findPurchaseListByRangePurchaseDate(start, end, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
         );
     }
 
