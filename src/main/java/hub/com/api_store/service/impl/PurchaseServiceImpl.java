@@ -126,6 +126,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         return purchaseDTOResponse;
     }
 
+    // UPDATE
     @Transactional
     @Override
     public PurchaseDTOResponse updatePurchase(Long id, PurchaseDTOUpdate purchaseDTOUpdate) {
@@ -164,6 +165,16 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase update = purchaseRepo.save(purchaseExist);
         PurchaseDTOResponse purchaseDTOResponse = purchaseMapper.toPurchaseDTOResponse(update);
         return purchaseDTOResponse;
+    }
+
+    // PATCH
+    @Transactional
+    @Override
+    public PurchaseDTOResponse changePurchaseStatus(Long id, PurchaseStatus purchaseStatus) {
+        Purchase purchaseExist = purchaseServiceDomain.findPurchaseById(id);
+        purchaseExist.setStatus(purchaseStatus);
+        Purchase updatedPurchase = purchaseRepo.save(purchaseExist);
+        return purchaseMapper.toPurchaseDTOResponse(updatedPurchase);
     }
 
 
