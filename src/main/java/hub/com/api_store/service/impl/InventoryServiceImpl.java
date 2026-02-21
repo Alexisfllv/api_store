@@ -6,6 +6,7 @@ import hub.com.api_store.entity.Purchase;
 import hub.com.api_store.mapper.InventoryMapper;
 import hub.com.api_store.repo.InventoryRepo;
 import hub.com.api_store.service.InventoryService;
+import hub.com.api_store.service.domain.InventoryServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,8 +26,18 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryMapper inventoryMapper;
 
     private final InventoryRepo inventoryRepo;
+    private final InventoryServiceDomain inventoryServiceDomain;
 
     // GET
+
+    @Override
+    public InventoryDTOResponse findInventoryById(Long id) {
+        Inventory inventory = inventoryServiceDomain.findById(id);
+        InventoryDTOResponse inventoryDTOResponse = inventoryMapper.toInventoryDTOResponse(inventory);
+        return inventoryDTOResponse;
+    }
+
+
     @Override
     public PageResponse<InventoryDTOResponse> findAllListPageInventory(int page, int size, String prop) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, prop));
