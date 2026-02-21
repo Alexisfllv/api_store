@@ -790,4 +790,112 @@ public class PurchaseServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("PATCH changePurchaseStatus")
+    void changePurchaseStatus() {
+        // Arrange
+        Category category = new Category(1L, "Alimentos", "Productos alimenticios", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "Arroz Premium", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+        Supplier supplier = new Supplier(1L, "Fring", "+51920287650", "Fring@email.com", "Lima-Lima", GlobalStatus.ACTIVE);
+        Inventory inventory = new Inventory(
+                1L, new BigDecimal("10.500"), GlobalUnit.KG, "A-01-B", "LOT-2026-022",
+                LocalDateTime.of(2027, 12, 10, 14, 0, 0), product
+        );
+
+        Purchase purchaseExist = new Purchase();
+        purchaseExist.setId(1L);
+        purchaseExist.setQuantity(new BigDecimal("100.000"));
+        purchaseExist.setUnit(GlobalUnit.KG);
+        purchaseExist.setCostUnit(new BigDecimal("3.5000"));
+        purchaseExist.setTotalCost(new BigDecimal("350.0000"));
+        purchaseExist.setLot("LOT-2024-001");
+        purchaseExist.setExpirationDate(LocalDateTime.of(2025, 6, 30, 23, 59, 59));
+        purchaseExist.setWarehouseLocation("A-01-B");
+        purchaseExist.setArrivalDate(LocalDateTime.of(2024, 1, 16, 14, 0, 0));
+        purchaseExist.setPurchaseDate(LocalDateTime.of(2024, 1, 15, 9, 30, 0));
+        purchaseExist.setStatus(PurchaseStatus.PENDING);
+        purchaseExist.setInvoiceNumber("INV-2024-0001");
+        purchaseExist.setNotes("Arroz de primera calidad");
+        purchaseExist.setProduct(product);
+        purchaseExist.setSupplier(supplier);
+
+        Purchase updatedPurchase = new Purchase();
+        updatedPurchase.setId(1L);
+        updatedPurchase.setQuantity(new BigDecimal("100.000"));
+        updatedPurchase.setUnit(GlobalUnit.KG);
+        updatedPurchase.setCostUnit(new BigDecimal("3.5000"));
+        updatedPurchase.setTotalCost(new BigDecimal("350.0000"));
+        updatedPurchase.setLot("LOT-2024-001");
+        updatedPurchase.setExpirationDate(LocalDateTime.of(2025, 6, 30, 23, 59, 59));
+        updatedPurchase.setWarehouseLocation("A-01-B");
+        updatedPurchase.setArrivalDate(LocalDateTime.of(2024, 1, 16, 14, 0, 0));
+        updatedPurchase.setPurchaseDate(LocalDateTime.of(2024, 1, 15, 9, 30, 0));
+        updatedPurchase.setStatus(PurchaseStatus.RECEIVED);
+        updatedPurchase.setInvoiceNumber("INV-2024-0001");
+        updatedPurchase.setNotes("Arroz de primera calidad");
+        updatedPurchase.setProduct(product);
+        updatedPurchase.setSupplier(supplier);
+
+        PurchaseDTOResponse purchaseDTOResponse = new PurchaseDTOResponse(
+                1L,
+                new BigDecimal("100.000"),
+                GlobalUnit.KG,
+                new BigDecimal("3.5000"),
+                new BigDecimal("350.0000"),
+                "LOT-2024-001",
+                LocalDateTime.of(2025, 6, 30, 23, 59, 59),
+                "A-01-B",
+                LocalDateTime.of(2024, 1, 16, 14, 0, 0),
+                LocalDateTime.of(2024, 1, 15, 9, 30, 0),
+                "INV-2024-0001",
+                "Arroz de primera calidad",
+                PurchaseStatus.RECEIVED,
+                product.getId(),
+                product.getName(),
+                supplier.getId(),
+                supplier.getName(),
+                inventory.getId(),
+                inventory.getWarehouse()
+        );
+
+        when(purchaseServiceDomain.findPurchaseById(1L)).thenReturn(purchaseExist);
+        when(purchaseRepo.save(purchaseExist)).thenReturn(updatedPurchase);
+        when(purchaseMapper.toPurchaseDTOResponse(updatedPurchase)).thenReturn(purchaseDTOResponse);
+
+        // Act
+        PurchaseDTOResponse result = purchaseServiceImpl.changePurchaseStatus(1L, PurchaseStatus.RECEIVED);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(purchaseDTOResponse, result),
+                () -> assertEquals(purchaseDTOResponse.id(), result.id()),
+                () -> assertEquals(PurchaseStatus.RECEIVED, result.purchaseStatus()),
+                () -> assertEquals(purchaseDTOResponse.quantity(), result.quantity()),
+                () -> assertEquals(purchaseDTOResponse.unit(), result.unit()),
+                () -> assertEquals(purchaseDTOResponse.costUnit(), result.costUnit()),
+                () -> assertEquals(purchaseDTOResponse.totalCost(), result.totalCost()),
+                () -> assertEquals(purchaseDTOResponse.lot(), result.lot()),
+                () -> assertEquals(purchaseDTOResponse.expirationDate(), result.expirationDate()),
+                () -> assertEquals(purchaseDTOResponse.warehouseLocation(), result.warehouseLocation()),
+                () -> assertEquals(purchaseDTOResponse.arrivalDate(), result.arrivalDate()),
+                () -> assertEquals(purchaseDTOResponse.purchaseDate(), result.purchaseDate()),
+                () -> assertEquals(purchaseDTOResponse.invoiceNumber(), result.invoiceNumber()),
+                () -> assertEquals(purchaseDTOResponse.notes(), result.notes()),
+                () -> assertEquals(purchaseDTOResponse.productId(), result.productId()),
+                () -> assertEquals(purchaseDTOResponse.productName(), result.productName()),
+                () -> assertEquals(purchaseDTOResponse.supplierId(), result.supplierId()),
+                () -> assertEquals(purchaseDTOResponse.supplierName(), result.supplierName()),
+                () -> assertEquals(purchaseDTOResponse.inventoryId(), result.inventoryId()),
+                () -> assertEquals(purchaseDTOResponse.inventoryWarehouse(), result.inventoryWarehouse())
+        );
+
+        // Verify
+        InOrder inOrder = Mockito.inOrder(purchaseServiceDomain, purchaseRepo, purchaseMapper);
+        inOrder.verify(purchaseServiceDomain).findPurchaseById(1L);
+        inOrder.verify(purchaseRepo).save(purchaseExist);
+        inOrder.verify(purchaseMapper).toPurchaseDTOResponse(updatedPurchase);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 }

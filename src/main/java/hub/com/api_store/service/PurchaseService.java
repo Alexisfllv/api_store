@@ -3,6 +3,7 @@ package hub.com.api_store.service;
 import hub.com.api_store.dto.purchase.PurchaseDTORequest;
 import hub.com.api_store.dto.purchase.PurchaseDTOResponse;
 import hub.com.api_store.dto.purchase.PurchaseDTOUpdate;
+import hub.com.api_store.nums.PurchaseStatus;
 import hub.com.api_store.util.page.PageResponse;
 import org.springframework.data.domain.PageRequest;
 
@@ -25,4 +26,7 @@ public interface PurchaseService {
 
     // PUT
     PurchaseDTOResponse updatePurchase(Long id, PurchaseDTOUpdate purchaseDTOUpdate);
+
+    // PATCH
+    PurchaseDTOResponse changePurchaseStatus(Long id, PurchaseStatus purchaseStatus);
 }
