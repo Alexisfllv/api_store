@@ -8,6 +8,7 @@ import hub.com.api_store.util.page.PageResponse;
 public interface InventoryService {
 
     // GET
+    InventoryDTOResponse findInventoryById(Long id);
     PageResponse<InventoryDTOResponse> findAllListPageInventory(int page, int size, String prop);
 
 
