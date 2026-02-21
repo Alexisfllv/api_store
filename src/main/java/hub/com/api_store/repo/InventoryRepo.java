@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface InventoryRepo extends JpaRepository<Inventory, Long> {
+
+    // POST
     Optional<Inventory> findByProductAndLotAndWarehouse(
             Product product,
             String lot,
