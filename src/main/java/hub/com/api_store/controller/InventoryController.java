@@ -8,16 +8,21 @@ import hub.com.api_store.util.response.StatusApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/inventories")
 public class InventoryController {
     private final InventoryService inventoryService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GenericResponse<InventoryDTOResponse>> findInventoryByIdGet(@PathVariable Long id){
+        InventoryDTOResponse response = inventoryService.findInventoryById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
 
     @GetMapping("/page")
     public ResponseEntity<GenericResponse<PageResponse<InventoryDTOResponse>>> findAllListPageInventoryGet(
