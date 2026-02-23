@@ -48,4 +48,15 @@ public class InventoryController {
                 new GenericResponse<>(StatusApi.SUCCESS, response)
         );
     }
+
+    @GetMapping("/lot/{lot}")
+    public ResponseEntity<GenericResponse<List<InventoryDTOResponse>>> findAllListInventoryByLotGet(
+            @PathVariable String lot,
+            @RequestParam (defaultValue = "10") int limit
+    ) {
+        List<InventoryDTOResponse> response = inventoryService.findAllListInventoryByLot(lot, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
 }

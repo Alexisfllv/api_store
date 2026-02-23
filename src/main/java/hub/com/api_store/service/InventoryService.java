@@ -13,7 +13,7 @@ public interface InventoryService {
     InventoryDTOResponse findInventoryById(Long id);
     PageResponse<InventoryDTOResponse> findAllListPageInventory(int page, int size, String prop);
     List<InventoryDTOResponse> findAllListInventoryByProduct(Long productId, int limit);
-
+    List<InventoryDTOResponse> findAllListInventoryByLot(String lot, int limit);
     // POST
     Inventory addStockFromPurchase(Purchase purchase);
 
