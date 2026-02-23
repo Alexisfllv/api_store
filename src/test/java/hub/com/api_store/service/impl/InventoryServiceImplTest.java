@@ -7,6 +7,7 @@ import hub.com.api_store.nums.GlobalStatus;
 import hub.com.api_store.nums.GlobalUnit;
 import hub.com.api_store.nums.PurchaseStatus;
 import hub.com.api_store.repo.InventoryRepo;
+import hub.com.api_store.service.domain.InventoryServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +36,9 @@ public class InventoryServiceImplTest {
 
     @Mock
     private InventoryMapper inventoryMapper;
+
+    @Mock
+    private InventoryServiceDomain inventoryServiceDomain;
 
     @InjectMocks
     private InventoryServiceImpl inventoryService;
@@ -274,4 +278,41 @@ public class InventoryServiceImplTest {
             inOrder.verifyNoMoreInteractions(); // el mapper nunca se llama si no hay elementos
         }
     }
+
+    @Test
+    @DisplayName("findInventoryById")
+    void findInventoryById(){
+        // Arrange
+        Long id = 1L;
+        Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L,"name", GlobalUnit.KG,GlobalStatus.ACTIVE,category);
+
+        Inventory inventory = new Inventory(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+        InventoryDTOResponse inventoryDTOResponse = new InventoryDTOResponse(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                1L,"name");
+
+        when(inventoryServiceDomain.findById(id)).thenReturn(inventory);
+        when(inventoryMapper.toInventoryDTOResponse(inventory)).thenReturn(inventoryDTOResponse);
+        // Act
+        InventoryDTOResponse result = inventoryService.findInventoryById(id);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(inventoryDTOResponse, result)
+        );
+
+        // Verify & InOrder
+        InOrder inOrder = inOrder(inventoryServiceDomain, inventoryMapper);
+        inOrder.verify(inventoryServiceDomain, times(1)).findById(id);
+        inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+
+
+
 }
