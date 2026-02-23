@@ -396,6 +396,44 @@ public class InventoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("findAllListInventoryByWarehouse")
+    void  findAllListInventoryByWarehouseGet(){
+        // Arrange
+        String warehouse = "A-01-B";
+        int limit = 10;
+        Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L,"name", GlobalUnit.KG,GlobalStatus.ACTIVE,category);
+
+        Inventory inventory = new Inventory(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+        InventoryDTOResponse inventoryDTOResponse = new InventoryDTOResponse(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                1L,"name");
+
+        List<Inventory> inventoryList = List.of(inventory);
+        List<InventoryDTOResponse> inventoryDTOResponseList = List.of(inventoryDTOResponse);
+        when(inventoryRepo.findByWarehouse(warehouse)).thenReturn(inventoryList);
+        when(inventoryMapper.toInventoryDTOResponse(inventory)).thenReturn(inventoryDTOResponse);
+
+        // Act
+        List<InventoryDTOResponse> resultList = inventoryService.findAllListInventoryByWarehouse(warehouse, limit);
+
+        // Assert
+
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(1, resultList.size()),
+                () -> assertEquals(inventoryDTOResponseList, resultList)
+        );
+
+        // Verify & InOrder
+        InOrder inOrder = inOrder(inventoryRepo,inventoryMapper);
+        inOrder.verify(inventoryRepo, times(1)).findByWarehouse(warehouse);
+        inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
+        inOrder.verifyNoMoreInteractions();
+    }
 
 
 

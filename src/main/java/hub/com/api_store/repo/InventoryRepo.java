@@ -21,4 +21,6 @@ public interface InventoryRepo extends JpaRepository<Inventory, Long> {
 
     List<Inventory> findByLot(String lot);
 
+    List<Inventory> findByWarehouse(String warehouse);
+
 }

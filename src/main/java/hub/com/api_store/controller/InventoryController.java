@@ -59,4 +59,15 @@ public class InventoryController {
                 new GenericResponse<>(StatusApi.SUCCESS, response)
         );
     }
+
+    @GetMapping("/warehouse/{warehouse}")
+    public ResponseEntity<GenericResponse<List<InventoryDTOResponse>>> findAllListInventoryByWarehouseGet(
+            @PathVariable String warehouse,
+            @RequestParam (defaultValue = "10") int limit
+    ) {
+        List<InventoryDTOResponse> response = inventoryService.findAllListInventoryByWarehouse(warehouse, limit);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
 }
