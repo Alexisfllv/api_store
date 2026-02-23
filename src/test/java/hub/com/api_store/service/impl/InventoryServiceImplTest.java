@@ -358,7 +358,7 @@ public class InventoryServiceImplTest {
     }
 
     @Test
-    @DisplayName("findAllListInventoryByLotGet")
+    @DisplayName("findAllListInventoryByLot")
     void findAllListInventoryByLotGet(){
         // Arrange
         String lot = "LOT-2026-022";
