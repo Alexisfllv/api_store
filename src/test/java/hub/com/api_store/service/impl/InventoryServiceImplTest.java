@@ -8,6 +8,7 @@ import hub.com.api_store.nums.GlobalUnit;
 import hub.com.api_store.nums.PurchaseStatus;
 import hub.com.api_store.repo.InventoryRepo;
 import hub.com.api_store.service.domain.InventoryServiceDomain;
+import hub.com.api_store.service.domain.ProductServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +41,9 @@ public class InventoryServiceImplTest {
 
     @Mock
     private InventoryServiceDomain inventoryServiceDomain;
+
+    @Mock
+    private ProductServiceDomain productServiceDomain;
 
     @InjectMocks
     private InventoryServiceImpl inventoryService;
@@ -308,6 +313,46 @@ public class InventoryServiceImplTest {
         // Verify & InOrder
         InOrder inOrder = inOrder(inventoryServiceDomain, inventoryMapper);
         inOrder.verify(inventoryServiceDomain, times(1)).findById(id);
+        inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("findAllListInventoryByProduct")
+    void  findAllListInventoryByProduct(){
+        // Arrange
+        Long productId = 1L;
+        int limit = 10;
+        Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L,"name", GlobalUnit.KG,GlobalStatus.ACTIVE,category);
+
+        Inventory inventory = new Inventory(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+        InventoryDTOResponse inventoryDTOResponse = new InventoryDTOResponse(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                1L,"name");
+
+        List<Inventory> inventoryList = List.of(inventory);
+        List<InventoryDTOResponse> inventoryDTOResponseList = List.of(inventoryDTOResponse);
+        when(inventoryRepo.findByProductId(productId)).thenReturn(inventoryList);
+        when(inventoryMapper.toInventoryDTOResponse(inventory)).thenReturn(inventoryDTOResponse);
+
+        // Act
+        List<InventoryDTOResponse> resultList = inventoryService.findAllListInventoryByProduct(productId, limit);
+
+        // Assert
+
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(1, resultList.size()),
+                () -> assertEquals(inventoryDTOResponseList, resultList)
+        );
+
+        // Verify & InOrder
+        InOrder inOrder = inOrder(inventoryRepo,productServiceDomain, inventoryMapper);
+        inOrder.verify(productServiceDomain, times(1)).findById(productId);
+        inOrder.verify(inventoryRepo, times(1)).findByProductId(productId);
         inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
         inOrder.verifyNoMoreInteractions();
     }
