@@ -2,11 +2,13 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.inventory.InventoryDTOResponse;
 import hub.com.api_store.entity.Inventory;
+import hub.com.api_store.entity.Product;
 import hub.com.api_store.entity.Purchase;
 import hub.com.api_store.mapper.InventoryMapper;
 import hub.com.api_store.repo.InventoryRepo;
 import hub.com.api_store.service.InventoryService;
 import hub.com.api_store.service.domain.InventoryServiceDomain;
+import hub.com.api_store.service.domain.ProductServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -27,6 +30,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepo inventoryRepo;
     private final InventoryServiceDomain inventoryServiceDomain;
+
+    private final ProductServiceDomain productServiceDomain;
 
     // GET
 
@@ -52,6 +57,16 @@ public class InventoryServiceImpl implements InventoryService {
                 inventoryPage.getTotalElements(),
                 inventoryPage.getTotalPages()
         );
+    }
+
+    @Override
+    public List<InventoryDTOResponse> findAllListInventoryByProduct(Long productId, int limit) {
+        productServiceDomain.findById(productId);
+        return inventoryRepo.findByProductId(productId)
+                .stream()
+                .limit(limit)
+                .map(inventoryMapper::toInventoryDTOResponse)
+                .toList();
     }
 
     // POST

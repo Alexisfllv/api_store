@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/inventories")
@@ -31,6 +33,17 @@ public class InventoryController {
             @RequestParam (defaultValue = "id") String prop
     ){
         PageResponse<InventoryDTOResponse> response= inventoryService.findAllListPageInventory(page, size, prop);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
+
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<GenericResponse<java.util.List<InventoryDTOResponse>>> findAllListInventoryByProductGet(
+            @PathVariable Long productId,
+            @RequestParam (defaultValue = "10") int limit
+    ){
+        List<InventoryDTOResponse> response= inventoryService.findAllListInventoryByProduct(productId, limit);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, response)
         );

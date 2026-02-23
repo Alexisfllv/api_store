@@ -5,6 +5,7 @@ import hub.com.api_store.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
+import java.util.List;
 import java.util.Optional;
 
 public interface InventoryRepo extends JpaRepository<Inventory, Long> {
@@ -15,5 +16,7 @@ public interface InventoryRepo extends JpaRepository<Inventory, Long> {
             String lot,
             String warehouse
     );
+
+    List<Inventory> findByProductId(Long productId);
 
 }
