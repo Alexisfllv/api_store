@@ -69,6 +69,15 @@ public class InventoryServiceImpl implements InventoryService {
                 .toList();
     }
 
+    @Override
+    public List<InventoryDTOResponse> findAllListInventoryByLot(String lot, int limit) {
+        return inventoryRepo.findByLot(lot)
+                .stream()
+                .limit(limit)
+                .map(inventoryMapper::toInventoryDTOResponse)
+                .toList();
+    }
+
     // POST
     @Transactional
     @Override
