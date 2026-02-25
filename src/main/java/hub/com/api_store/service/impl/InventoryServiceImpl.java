@@ -18,6 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,6 +88,21 @@ public class InventoryServiceImpl implements InventoryService {
                 .map(inventoryMapper::toInventoryDTOResponse)
                 .toList();
     }
+
+    @Override
+    public List<InventoryDTOResponse> findAvailableInventoryByProduct(Long productId) {
+        productServiceDomain.findById(productId);
+        return inventoryRepo
+                .findByProductIdAndQuantityGreaterThanAndExpirationDateAfterOrderByExpirationDateAsc(
+                        productId,
+                        BigDecimal.ZERO,
+                        LocalDateTime.now()
+                )
+                .stream()
+                .map(inventoryMapper::toInventoryDTOResponse)
+                .toList();
+    }
+
 
     // POST
     @Transactional
