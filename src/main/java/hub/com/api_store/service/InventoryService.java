@@ -5,6 +5,7 @@ import hub.com.api_store.entity.Inventory;
 import hub.com.api_store.entity.Purchase;
 import hub.com.api_store.util.page.PageResponse;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface InventoryService {
@@ -15,6 +16,10 @@ public interface InventoryService {
     List<InventoryDTOResponse> findAllListInventoryByProduct(Long productId, int limit);
     List<InventoryDTOResponse> findAllListInventoryByLot(String lot, int limit);
     List<InventoryDTOResponse> findAllListInventoryByWarehouse(String warehouse, int limit);
+
+    // Priority
+    List<InventoryDTOResponse> findAvailableInventoryByProduct(Long productId);
+
     // POST
     Inventory addStockFromPurchase(Purchase purchase);
 
