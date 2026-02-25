@@ -80,4 +80,12 @@ public class InventoryController {
         );
     }
 
+    @GetMapping("/available")
+    public ResponseEntity<GenericResponse<List<InventoryDTOResponse>>> findAvailableInventoryGet() {
+        List<InventoryDTOResponse> response = inventoryService.findAvailableInventory();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
+
 }
