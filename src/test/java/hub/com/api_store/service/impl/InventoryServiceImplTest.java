@@ -10,6 +10,7 @@ import hub.com.api_store.repo.InventoryRepo;
 import hub.com.api_store.service.domain.InventoryServiceDomain;
 import hub.com.api_store.service.domain.ProductServiceDomain;
 import hub.com.api_store.util.page.PageResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,9 +19,12 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +35,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT) // ← agregar esto
 public class InventoryServiceImplTest {
 
     @Mock
@@ -45,8 +50,21 @@ public class InventoryServiceImplTest {
     @Mock
     private ProductServiceDomain productServiceDomain;
 
+    @Mock
+    private Clock clock;
+
+
     @InjectMocks
     private InventoryServiceImpl inventoryService;
+
+    private LocalDateTime fixedNow; // ← a nivel de clase
+
+    @BeforeEach
+    void setUp() {
+        fixedNow = LocalDateTime.of(2026, 2, 25, 10, 0, 0);
+        when(clock.instant()).thenReturn(fixedNow.atZone(Clock.systemDefaultZone().getZone()).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+    }
 
 
     @Nested
@@ -482,6 +500,49 @@ public class InventoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("findAvailableInventory")
+    void findAvailableInventory(){
+        // Arrange
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        Inventory inventory = new Inventory(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+        InventoryDTOResponse inventoryDTOResponse = new InventoryDTOResponse(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                1L, "name");
+
+        List<Inventory> inventoryList = List.of(inventory);
+        List<InventoryDTOResponse> inventoryDTOResponseList = List.of(inventoryDTOResponse);
+
+        when(inventoryRepo.findByQuantityGreaterThanAndExpirationDateAfterOrderByExpirationDateAsc(
+                BigDecimal.ZERO,
+                fixedNow
+        )).thenReturn(inventoryList);
+        when(inventoryMapper.toInventoryDTOResponse(inventory)).thenReturn(inventoryDTOResponse);
+
+        // Act
+        List<InventoryDTOResponse> resultList = inventoryService.findAvailableInventory();
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(1, resultList.size()),
+                () -> assertEquals(inventoryDTOResponseList, resultList)
+        );
+
+        // Verify & InOrder
+        InOrder inOrder = inOrder(inventoryRepo, inventoryMapper);
+        inOrder.verify(inventoryRepo, times(1))
+                .findByQuantityGreaterThanAndExpirationDateAfterOrderByExpirationDateAsc(
+                        BigDecimal.ZERO,
+                        fixedNow
+                );
+        inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
+        inOrder.verifyNoMoreInteractions();
+    }
 
 
 }
