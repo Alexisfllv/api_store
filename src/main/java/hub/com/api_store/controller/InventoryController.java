@@ -70,4 +70,14 @@ public class InventoryController {
                 new GenericResponse<>(StatusApi.SUCCESS, response)
         );
     }
+
+    @GetMapping("/available/product/{productId}")
+    public ResponseEntity<GenericResponse<List<InventoryDTOResponse>>> findAvailableInventoryByProductGet(
+            @PathVariable Long productId){
+        List<InventoryDTOResponse> response = inventoryService.findAvailableInventoryByProduct(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
+
 }
