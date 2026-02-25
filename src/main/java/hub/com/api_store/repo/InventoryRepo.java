@@ -33,5 +33,10 @@ public interface InventoryRepo extends JpaRepository<Inventory, Long> {
             LocalDateTime now
     );
 
+    List<Inventory> findByQuantityGreaterThanAndExpirationDateAfterOrderByExpirationDateAsc(
+            BigDecimal quantity,
+            LocalDateTime now
+    );
+
 
 }

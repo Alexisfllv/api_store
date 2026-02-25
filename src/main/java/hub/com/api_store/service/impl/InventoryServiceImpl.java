@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final ProductServiceDomain productServiceDomain;
 
+    private final Clock clock;
     // GET
 
     @Override
@@ -97,6 +99,18 @@ public class InventoryServiceImpl implements InventoryService {
                         productId,
                         BigDecimal.ZERO,
                         LocalDateTime.now()
+                )
+                .stream()
+                .map(inventoryMapper::toInventoryDTOResponse)
+                .toList();
+    }
+
+    @Override
+    public List<InventoryDTOResponse> findAvailableInventory() {
+        return inventoryRepo
+                .findByQuantityGreaterThanAndExpirationDateAfterOrderByExpirationDateAsc(
+                        BigDecimal.ZERO,
+                        LocalDateTime.now(clock)
                 )
                 .stream()
                 .map(inventoryMapper::toInventoryDTOResponse)

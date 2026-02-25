@@ -19,6 +19,8 @@ public interface InventoryService {
 
     // Priority
     List<InventoryDTOResponse> findAvailableInventoryByProduct(Long productId);
+    List<InventoryDTOResponse> findAvailableInventory();
+
 
     // POST
     Inventory addStockFromPurchase(Purchase purchase);
