@@ -435,6 +435,53 @@ public class InventoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("findAvailableInventoryByProduct")
+    void findAvailableInventoryByProduct(){
+        // Arrange
+        Long productId = 1L;
+        Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L,"name", GlobalUnit.KG,GlobalStatus.ACTIVE,category);
+
+        Inventory inventory = new Inventory(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+        InventoryDTOResponse inventoryDTOResponse = new InventoryDTOResponse(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                1L,"name");
+
+        List<Inventory> inventoryList = List.of(inventory);
+        List<InventoryDTOResponse> inventoryDTOResponseList = List.of(inventoryDTOResponse);
+        when(inventoryRepo.findByProductIdAndQuantityGreaterThanAndExpirationDateAfterOrderByExpirationDateAsc(
+                eq(productId),
+                eq(BigDecimal.ZERO),
+                any(LocalDateTime.class)
+        )).thenReturn(inventoryList);
+        when(inventoryMapper.toInventoryDTOResponse(inventory)).thenReturn(inventoryDTOResponse);
+
+        // Act
+        List<InventoryDTOResponse> resultList = inventoryService.findAvailableInventoryByProduct(productId);
+
+        // Assert
+
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(1, resultList.size()),
+                () -> assertEquals(inventoryDTOResponseList, resultList)
+        );
+
+        // Verify & InOrder
+        InOrder inOrder = inOrder(inventoryRepo,productServiceDomain, inventoryMapper);
+        inOrder.verify(productServiceDomain, times(1)).findById(productId);
+        inOrder.verify(inventoryRepo, times(1)).findByProductIdAndQuantityGreaterThanAndExpirationDateAfterOrderByExpirationDateAsc(
+                eq(productId),
+                eq(BigDecimal.ZERO),
+                any(LocalDateTime.class)
+        );
+        inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 
 
 }
