@@ -6,6 +6,7 @@ import hub.com.api_store.entity.Purchase;
 import hub.com.api_store.util.page.PageResponse;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface InventoryService {
@@ -18,9 +19,12 @@ public interface InventoryService {
     List<InventoryDTOResponse> findAllListInventoryByWarehouse(String warehouse, int limit);
 
     // Priority
+    // available
     List<InventoryDTOResponse> findAvailableInventoryByProduct(Long productId);
     List<InventoryDTOResponse> findAvailableInventory();
 
+    // expiration
+    List<InventoryDTOResponse> findInventoryExpiringBetween(LocalDateTime start, LocalDateTime end);
 
     // POST
     Inventory addStockFromPurchase(Purchase purchase);
