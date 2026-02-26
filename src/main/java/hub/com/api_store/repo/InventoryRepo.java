@@ -38,5 +38,11 @@ public interface InventoryRepo extends JpaRepository<Inventory, Long> {
             LocalDateTime now
     );
 
+    // expiration
+    List<Inventory> findByExpirationDateBetweenOrderByExpirationDateAsc(
+            LocalDateTime start,
+            LocalDateTime end
+    );
+
 
 }

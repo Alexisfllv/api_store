@@ -117,6 +117,14 @@ public class InventoryServiceImpl implements InventoryService {
                 .toList();
     }
 
+    @Override
+    public List<InventoryDTOResponse> findInventoryExpiringBetween(LocalDateTime start, LocalDateTime end) {
+        return inventoryRepo.findByExpirationDateBetweenOrderByExpirationDateAsc(start, end)
+                .stream()
+                .map(inventoryMapper::toInventoryDTOResponse)
+                .toList();
+    }
+
 
     // POST
     @Transactional
