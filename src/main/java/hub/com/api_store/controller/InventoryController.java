@@ -101,4 +101,11 @@ public class InventoryController {
         );
     }
 
+    @GetMapping("/expiration")
+    public ResponseEntity<GenericResponse<List<InventoryDTOResponse>>> findInventoryExpirationGet() {
+        List<InventoryDTOResponse> response = inventoryService.findInventoryExpiration();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
 }

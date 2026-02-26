@@ -584,4 +584,43 @@ public class InventoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("findInventoryExpiration")
+    void findInventoryExpiration(){
+        // Arrange
+        LocalDateTime now = fixedNow;
+
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        Inventory inventory = new Inventory(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 2, 20, 12, 0, 0),
+                product);
+        InventoryDTOResponse inventoryDTOResponse = new InventoryDTOResponse(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 2, 20, 12, 0, 0),
+                1L, "name");
+        List<Inventory> inventoryList = List.of(inventory);
+        List<InventoryDTOResponse> inventoryDTOResponseList = List.of(inventoryDTOResponse);
+
+        when(inventoryRepo.findByExpirationDateBeforeOrderByExpirationDateAsc(now))
+                .thenReturn(inventoryList);
+        when(inventoryMapper.toInventoryDTOResponse(inventory)).thenReturn(inventoryDTOResponse);
+
+        // Act
+        List<InventoryDTOResponse> resultList = inventoryService.findInventoryExpiration();
+
+        // Assert
+        assertAll(
+                ()-> assertNotNull(resultList),
+                () -> assertEquals(1, resultList.size()),
+                () -> assertEquals(inventoryDTOResponseList, resultList)
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = inOrder(inventoryRepo, inventoryMapper);
+        inOrder.verify(inventoryRepo, times(1)).findByExpirationDateBeforeOrderByExpirationDateAsc(now);
+        inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 }

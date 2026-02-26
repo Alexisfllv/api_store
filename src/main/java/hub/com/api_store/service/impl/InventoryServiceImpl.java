@@ -125,6 +125,17 @@ public class InventoryServiceImpl implements InventoryService {
                 .toList();
     }
 
+    @Override
+    public List<InventoryDTOResponse> findInventoryExpiration() {
+        return inventoryRepo.findByExpirationDateBeforeOrderByExpirationDateAsc(
+                LocalDateTime.now(clock)
+        )
+                .stream()
+                .map(inventoryMapper::toInventoryDTOResponse)
+                .toList(
+        );
+    }
+
 
     // POST
     @Transactional
