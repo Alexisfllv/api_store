@@ -25,7 +25,7 @@ public interface InventoryService {
 
     // expiration
     List<InventoryDTOResponse> findInventoryExpiringBetween(LocalDateTime start, LocalDateTime end);
-
+    List<InventoryDTOResponse> findInventoryExpiration();
     // POST
     Inventory addStockFromPurchase(Purchase purchase);
 
