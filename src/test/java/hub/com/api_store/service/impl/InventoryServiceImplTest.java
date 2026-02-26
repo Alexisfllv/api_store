@@ -544,5 +544,44 @@ public class InventoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("findInventoryExpiringBetween")
+    void findInventoryExpiringBetween() {
+        // Arrange
+        LocalDateTime start = LocalDateTime.of(2026, 6, 1, 0, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 6, 30, 23, 59, 59);
+
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        Inventory inventory = new Inventory(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 15, 12, 0, 0),
+                product);
+        InventoryDTOResponse inventoryDTOResponse = new InventoryDTOResponse(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 15, 12, 0, 0),
+                1L, "name");
+        List<Inventory> inventoryList = List.of(inventory);
+        List<InventoryDTOResponse> inventoryDTOResponseList = List.of(inventoryDTOResponse);
+
+        when(inventoryRepo.findByExpirationDateBetweenOrderByExpirationDateAsc(start, end))
+                .thenReturn(inventoryList);
+        when(inventoryMapper.toInventoryDTOResponse(inventory)).thenReturn(inventoryDTOResponse);
+
+        // Act
+        List<InventoryDTOResponse> resultList = inventoryService.findInventoryExpiringBetween(start, end);
+
+        // Assert
+        assertAll(
+                ()-> assertNotNull(resultList),
+                () -> assertEquals(1, resultList.size()),
+                () -> assertEquals(inventoryDTOResponseList, resultList)
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = inOrder(inventoryRepo, inventoryMapper);
+        inOrder.verify(inventoryRepo, times(1)).findByExpirationDateBetweenOrderByExpirationDateAsc(start, end);
+        inOrder.verify(inventoryMapper, times(1)).toInventoryDTOResponse(inventory);
+        inOrder.verifyNoMoreInteractions();
+    }
 
 }
