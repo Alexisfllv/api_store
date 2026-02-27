@@ -1,4 +1,4 @@
-package hub.com.api_store.util;
+package hub.com.api_store.util.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
