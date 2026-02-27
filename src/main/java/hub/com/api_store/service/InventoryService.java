@@ -30,6 +30,7 @@ public interface InventoryService {
 
     // stock
     InventoryTotalStockDTOResponse findTotalStockByProductId(Long productId);
+    List<InventoryTotalStockDTOResponse>findAllTotalStock();
 
     // POST
     Inventory addStockFromPurchase(Purchase purchase);
