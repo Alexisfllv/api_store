@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService {
+public class NotificationEventService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
@@ -30,15 +30,8 @@ public class NotificationService {
                 : NotificationType.EXPIRING;
 
         // check duplicates
-        if (type == NotificationType.EXPIRED) {
-            if (notificationRepo.existsByInventoryIdAndType(
-                    event.inventoryId(), NotificationType.EXPIRED)) return;
-        }
-
-        if (type == NotificationType.EXPIRING) {
-            if (notificationRepo.existsByInventoryIdAndDaysUntilExpiration(
-                    event.inventoryId(), event.daysUntilExpiration())) return;
-        }
+        if (notificationRepo.existsByInventoryIdAndTypeAndDaysUntilExpiration(
+                event.inventoryId(), type, event.daysUntilExpiration())) return;
 
         // msg
         String message = event.daysUntilExpiration() <= 0
