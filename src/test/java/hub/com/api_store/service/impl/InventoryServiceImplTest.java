@@ -1,6 +1,7 @@
 package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.inventory.InventoryDTOResponse;
+import hub.com.api_store.dto.inventory.InventoryTotalStockDTOResponse;
 import hub.com.api_store.entity.*;
 import hub.com.api_store.mapper.InventoryMapper;
 import hub.com.api_store.nums.GlobalStatus;
@@ -623,4 +624,33 @@ public class InventoryServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("findTotalStockByProductId")
+    void findTotalStockByProductId(){
+        // Arrange
+        Long productId = 1L;
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        InventoryTotalStockDTOResponse stockDTOResponse  = new InventoryTotalStockDTOResponse(
+                productId, product.getName(), new BigDecimal("120.000"), product.getUnit());
+        when(inventoryRepo.findTotalStockByProductId(productId)).thenReturn(stockDTOResponse);
+        // Act
+        InventoryTotalStockDTOResponse result = inventoryService.findTotalStockByProductId(productId);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(stockDTOResponse, result),
+                () -> assertEquals(productId, result.productId()),
+                () -> assertEquals(product.getName(), result.productName()),
+                () -> assertEquals(new BigDecimal("120.000"), result.totalQuantity()),
+                () -> assertEquals(product.getUnit(), result.unit())
+        );
+        // InOrder & Verify
+        InOrder inOrder = inOrder(inventoryRepo, productServiceDomain);
+        inOrder.verify(productServiceDomain, times(1)).findById(productId);
+        inOrder.verify(inventoryRepo, times(1)).findTotalStockByProductId(productId);
+        inOrder.verifyNoMoreInteractions();
+    }
 }
