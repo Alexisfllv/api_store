@@ -1,6 +1,7 @@
 package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.inventory.InventoryDTOResponse;
+import hub.com.api_store.dto.inventory.InventoryTotalStockDTOResponse;
 import hub.com.api_store.entity.Inventory;
 import hub.com.api_store.entity.Product;
 import hub.com.api_store.entity.Purchase;
@@ -134,6 +135,12 @@ public class InventoryServiceImpl implements InventoryService {
                 .map(inventoryMapper::toInventoryDTOResponse)
                 .toList(
         );
+    }
+
+    @Override
+    public InventoryTotalStockDTOResponse findTotalStockByProductId(Long productId) {
+        productServiceDomain.findById(productId);
+        return inventoryRepo.findTotalStockByProductId(productId);
     }
 
 

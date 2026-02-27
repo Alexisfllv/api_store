@@ -1,6 +1,7 @@
 package hub.com.api_store.controller;
 
 import hub.com.api_store.dto.inventory.InventoryDTOResponse;
+import hub.com.api_store.dto.inventory.InventoryTotalStockDTOResponse;
 import hub.com.api_store.service.InventoryService;
 import hub.com.api_store.util.page.PageResponse;
 import hub.com.api_store.util.response.GenericResponse;
@@ -104,6 +105,14 @@ public class InventoryController {
     @GetMapping("/expiration")
     public ResponseEntity<GenericResponse<List<InventoryDTOResponse>>> findInventoryExpirationGet() {
         List<InventoryDTOResponse> response = inventoryService.findInventoryExpiration();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
+
+    @GetMapping("/stock/product/{productId}")
+    public ResponseEntity<GenericResponse<InventoryTotalStockDTOResponse>> findTotalStockByProductIdGet(@PathVariable Long productId) {
+        InventoryTotalStockDTOResponse response = inventoryService.findTotalStockByProductId(productId);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new GenericResponse<>(StatusApi.SUCCESS, response)
         );
