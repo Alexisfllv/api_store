@@ -117,4 +117,12 @@ public class InventoryController {
                 new GenericResponse<>(StatusApi.SUCCESS, response)
         );
     }
+
+    @GetMapping("/stock")
+    public ResponseEntity<GenericResponse<List<InventoryTotalStockDTOResponse>>> findAllTotalStockGet() {
+        List<InventoryTotalStockDTOResponse> response = inventoryService.findAllTotalStock();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
 }
