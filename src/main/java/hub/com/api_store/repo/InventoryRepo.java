@@ -58,5 +58,12 @@ public interface InventoryRepo extends JpaRepository<Inventory, Long> {
             "GROUP BY i.product.id, i.product.name, i.unit")
     InventoryTotalStockDTOResponse findTotalStockByProductId(@Param("productId") Long productId);
 
+    @Query("SELECT new hub.com.api_store.dto.inventory.InventoryTotalStockDTOResponse(" +
+            "i.product.id, i.product.name, SUM(i.quantity), i.unit) " +
+            "FROM Inventory i " +
+            "GROUP BY i.product.id, i.product.name, i.unit " +
+            "ORDER BY i.product.id ASC")
+    List<InventoryTotalStockDTOResponse> findTotalStockAllProducts();
+
 
 }
