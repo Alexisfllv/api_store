@@ -1,4 +1,4 @@
-package hub.com.api_store.dto.inventory;
+package hub.com.api_store.notification.event;
 
 import java.time.LocalDateTime;
 
