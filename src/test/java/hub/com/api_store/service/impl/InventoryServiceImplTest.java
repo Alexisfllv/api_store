@@ -653,4 +653,35 @@ public class InventoryServiceImplTest {
         inOrder.verify(inventoryRepo, times(1)).findTotalStockByProductId(productId);
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    @DisplayName("findAllTotalStock")
+    void findAllTotalStock() {
+        // Arrange
+        InventoryTotalStockDTOResponse item1 = new InventoryTotalStockDTOResponse(
+                1L, "Arroz Blanco Premium", new BigDecimal("120.000"), GlobalUnit.KG
+        );
+        InventoryTotalStockDTOResponse item2 = new InventoryTotalStockDTOResponse(
+                2L, "Aceite de Oliva Extra Virgen", new BigDecimal("30.500"), GlobalUnit.LITER
+        );
+
+        List<InventoryTotalStockDTOResponse> totalStockList = List.of(item1, item2);
+
+        when(inventoryRepo.findTotalStockAllProducts()).thenReturn(totalStockList);
+
+        // Act
+        List<InventoryTotalStockDTOResponse> result = inventoryService.findAllTotalStock();
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(2, result.size()),
+                () -> assertEquals(totalStockList, result)
+        );
+
+        // Verify & InOrder
+        InOrder inOrder = inOrder(inventoryRepo);
+        inOrder.verify(inventoryRepo, times(1)).findTotalStockAllProducts();
+        inOrder.verifyNoMoreInteractions();
+    }
 }
