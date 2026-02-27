@@ -143,6 +143,11 @@ public class InventoryServiceImpl implements InventoryService {
         return inventoryRepo.findTotalStockByProductId(productId);
     }
 
+    @Override
+    public List<InventoryTotalStockDTOResponse> findAllTotalStock() {
+        return inventoryRepo.findTotalStockAllProducts();
+    }
+
 
     // POST
     @Transactional
