@@ -65,6 +65,19 @@ public class GlobalExceptionHandler {
         return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // InsufficientStockException
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientStockException(
+            HttpServletRequest req, InsufficientStockException ex){
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage(),
+                req.getRequestURI(),
+                "Insufficient Stock"
+        );
+        return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     // Invalid Status Exception
     @ExceptionHandler(InvalidStatusException.class)
     public ResponseEntity<ErrorResponse> handleInvalidStatusException(
