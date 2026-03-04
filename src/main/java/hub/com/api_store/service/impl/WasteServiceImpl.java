@@ -10,7 +10,12 @@ import hub.com.api_store.repo.WasteRepo;
 import hub.com.api_store.service.WasteService;
 import hub.com.api_store.service.domain.InventoryServiceDomain;
 import hub.com.api_store.service.domain.WasteServiceDomain;
+import hub.com.api_store.util.page.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +33,20 @@ public class WasteServiceImpl implements WasteService {
     private final WasteServiceDomain wasteServiceDomain;
     private final InventoryRepo inventoryRepo;
     private final Clock clock;
+
+    // GET
+    @Override
+    public PageResponse<WasteDTOResponse> findAllPage(int page, int size, String prop) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, prop));
+        Page<Waste> wastePage = wasteRepo.findAll(pageable);
+        return new PageResponse<>(
+                wastePage.getContent().stream().map(wasteMapper::toWasteDTOResponse).toList(),
+                wastePage.getNumber(),
+                wastePage.getSize(),
+                wastePage.getTotalElements(),
+                wastePage.getTotalPages()
+        );
+    }
 
     // POST
     @Transactional
