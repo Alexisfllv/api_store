@@ -10,6 +10,8 @@ public interface WasteService {
     // GET
     PageResponse<WasteDTOResponse> findAllPage(int page, int size, String prop);
 
+    WasteDTOResponse findByIdWaste(Long id);
+
 
     // POST
     WasteDTOResponse createWaste(WasteDTORequest wasteDTORequest);
