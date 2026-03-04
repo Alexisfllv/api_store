@@ -48,6 +48,12 @@ public class WasteServiceImpl implements WasteService {
         );
     }
 
+    @Override
+    public WasteDTOResponse findByIdWaste(Long id) {
+        Waste waste = wasteServiceDomain.findById(id);
+        return wasteMapper.toWasteDTOResponse(waste);
+    }
+
     // POST
     @Transactional
     @Override

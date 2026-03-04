@@ -30,6 +30,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -127,6 +128,64 @@ public class WasteServiceImplTest {
         inOrder.verifyNoMoreInteractions();
 
     }
+
+    @Test
+    @DisplayName("findByIdWaste")
+    void findByIdWaste() {
+        // Arrange
+        Long id = 1L;
+        Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L,"name", GlobalUnit.KG,GlobalStatus.ACTIVE,category);
+
+        Inventory inventory = new Inventory(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+
+        Waste waste = new Waste(1L, new BigDecimal(5.00), GlobalUnit.KG, WasteReason.EXPIRED,
+                "notes", fixedNow, inventory);
+        WasteDTOResponse wasteDTOResponse = new WasteDTOResponse(
+                1L,
+                new BigDecimal(5.00),
+                GlobalUnit.KG,
+                WasteReason.EXPIRED,
+                "notes",
+                LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                1L,
+                "LOT-2026-022",
+                "A-01-B",
+                1L,
+                "name"
+        );
+
+        when(wasteServiceDomain.findById(id)).thenReturn(waste);
+        when(wasteMapper.toWasteDTOResponse(waste)).thenReturn(wasteDTOResponse);
+
+        // Act
+        WasteDTOResponse result = wasteServiceImpl.findByIdWaste(id);
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(wasteDTOResponse, result),
+                () -> assertEquals(wasteDTOResponse.id(), result.id()),
+                () -> assertEquals(wasteDTOResponse.quantity(), result.quantity()),
+                () -> assertEquals(wasteDTOResponse.unit(), result.unit()),
+                () -> assertEquals(wasteDTOResponse.reason(), result.reason()),
+                () -> assertEquals(wasteDTOResponse.notes(), result.notes()),
+                () -> assertEquals(wasteDTOResponse.wasteDate(), result.wasteDate()),
+                () -> assertEquals(wasteDTOResponse.inventoryId(), result.inventoryId()),
+                () -> assertEquals(wasteDTOResponse.inventoryLot(), result.inventoryLot()),
+                () -> assertEquals(wasteDTOResponse.inventoryWarehouse(), result.inventoryWarehouse()),
+                () -> assertEquals(wasteDTOResponse.productId(), result.productId()),
+                () -> assertEquals(wasteDTOResponse.productName(), result.productName())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = inOrder(wasteServiceDomain, wasteMapper);
+        inOrder.verify(wasteServiceDomain, times(1)).findById(id);
+        inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 
 
     // POST
