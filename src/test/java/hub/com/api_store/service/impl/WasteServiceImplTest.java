@@ -14,6 +14,7 @@ import hub.com.api_store.repo.InventoryRepo;
 import hub.com.api_store.repo.WasteRepo;
 import hub.com.api_store.service.domain.InventoryServiceDomain;
 import hub.com.api_store.service.domain.WasteServiceDomain;
+import hub.com.api_store.util.page.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,11 +23,13 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -60,10 +63,71 @@ public class WasteServiceImplTest {
     @BeforeEach
     void setUp() {
         fixedNow = LocalDateTime.of(2026, Month.MARCH, 24, 0, 0);
-        when(clock.instant()).thenReturn(fixedNow.atZone(Clock.systemDefaultZone().getZone()).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+        lenient().when(clock.instant()).thenReturn(fixedNow.atZone(Clock.systemDefaultZone().getZone()).toInstant());
+        lenient().when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+    }
+
+    // GET
+    @Test
+    @DisplayName("findAllPage")
+    void findAllPage() {
+        // Arrange
+        int page = 0;
+        int size = 10;
+        String prop = "id";
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, prop));
+
+        Category category = new Category(1L,"name","description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L,"name", GlobalUnit.KG,GlobalStatus.ACTIVE,category);
+
+        Inventory inventory = new Inventory(1L,new BigDecimal(10.00),GlobalUnit.KG,
+                "A-01-B","LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+
+        Waste waste = new Waste(1L, new BigDecimal(5.00), GlobalUnit.KG, WasteReason.EXPIRED,
+                "notes", fixedNow, inventory);
+        List<Waste> wasteList = List.of(waste);
+
+        WasteDTOResponse wasteDTOResponse = new WasteDTOResponse(
+                1L,
+                new BigDecimal(5.00),
+                GlobalUnit.KG,
+                WasteReason.EXPIRED,
+                "notes",
+                fixedNow,
+                1L,
+                "LOT-2026-022",
+                "A-01-B",
+                1L,
+                "name"
+        );
+        Page<Waste> wastePage = new PageImpl<>(wasteList,pageable,wasteList.size());
+
+        when(wasteRepo.findAll(pageable)).thenReturn(wastePage);
+        when(wasteMapper.toWasteDTOResponse(waste)).thenReturn(wasteDTOResponse);
+
+        // Act
+        PageResponse<WasteDTOResponse> resultList = wasteServiceImpl.findAllPage(page, size, prop);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(1, resultList.content().size()),
+                () -> assertEquals(wasteDTOResponse, resultList.content().get(0)),
+                () -> assertEquals(0, resultList.page()),
+                () -> assertEquals(10, resultList.size()),
+                () -> assertEquals(1, resultList.totalElements()),
+                () -> assertEquals(1, resultList.totalPages())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = inOrder(wasteRepo, wasteMapper);
+        inOrder.verify(wasteRepo, times(1)).findAll(pageable);
+        inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste);
+        inOrder.verifyNoMoreInteractions();
 
     }
+
 
     // POST
     @Test
