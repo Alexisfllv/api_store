@@ -31,6 +31,13 @@ public class WasteController {
                 .body(new GenericResponse<>(StatusApi.SUCCESS, response));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<GenericResponse<WasteDTOResponse>> findByIdWasteGet(@PathVariable Long id){
+        WasteDTOResponse response = wasteService.findByIdWaste(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(StatusApi.SUCCESS,response));
+    }
+
     // Post
     @PostMapping
     public ResponseEntity<GenericResponse<WasteDTOResponse>> createWastePost(@Valid @RequestBody WasteDTORequest wasteDTORequest){
