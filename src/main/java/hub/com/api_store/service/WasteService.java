@@ -2,8 +2,11 @@ package hub.com.api_store.service;
 
 import hub.com.api_store.dto.waste.WasteDTORequest;
 import hub.com.api_store.dto.waste.WasteDTOResponse;
+import hub.com.api_store.nums.WasteReason;
 import hub.com.api_store.util.page.PageResponse;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.List;
 
 public interface WasteService {
 
@@ -11,6 +14,8 @@ public interface WasteService {
     PageResponse<WasteDTOResponse> findAllPage(int page, int size, String prop);
 
     WasteDTOResponse findByIdWaste(Long id);
+
+    List<WasteDTOResponse> findAllWasteByReason(WasteReason reason);
 
 
     // POST

@@ -187,6 +187,53 @@ public class WasteServiceImplTest {
     }
 
 
+    @Test
+    @DisplayName("findAllWasteByReason")
+    void findAllWasteByReason() {
+        // Arrange
+        WasteReason reason = WasteReason.EXPIRED;
+
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+        Inventory inventory = new Inventory(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59), product);
+
+        Waste waste1 = new Waste(1L, new BigDecimal("5.000"), GlobalUnit.KG, WasteReason.EXPIRED,
+                "notes1", fixedNow, inventory);
+        Waste waste2 = new Waste(2L, new BigDecimal("10.000"), GlobalUnit.KG, WasteReason.EXPIRED,
+                "notes2", fixedNow, inventory);
+
+        WasteDTOResponse response1 = new WasteDTOResponse(1L, new BigDecimal("5.000"), GlobalUnit.KG,
+                WasteReason.EXPIRED, "notes1", fixedNow, 1L, "LOT-2026-022", "A-01-B", 1L, "name");
+        WasteDTOResponse response2 = new WasteDTOResponse(2L, new BigDecimal("10.000"), GlobalUnit.KG,
+                WasteReason.EXPIRED, "notes2", fixedNow, 1L, "LOT-2026-022", "A-01-B", 1L, "name");
+
+        List<Waste> wasteList = List.of(waste1, waste2);
+        List<WasteDTOResponse> expectedList = List.of(response1, response2);
+
+        when(wasteRepo.findByReason(reason)).thenReturn(wasteList);
+        when(wasteMapper.toWasteDTOResponse(waste1)).thenReturn(response1);
+        when(wasteMapper.toWasteDTOResponse(waste2)).thenReturn(response2);
+
+        // Act
+        List<WasteDTOResponse> result = wasteServiceImpl.findAllWasteByReason(reason);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(2, result.size()),
+                () -> assertEquals(expectedList, result),
+                () -> assertEquals(WasteReason.EXPIRED, result.get(0).reason()),
+                () -> assertEquals(WasteReason.EXPIRED, result.get(1).reason())
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = inOrder(wasteRepo, wasteMapper);
+        inOrder.verify(wasteRepo, times(1)).findByReason(reason);
+        inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste1);
+        inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste2);
+        inOrder.verifyNoMoreInteractions();
+    }
 
     // POST
     @Test
