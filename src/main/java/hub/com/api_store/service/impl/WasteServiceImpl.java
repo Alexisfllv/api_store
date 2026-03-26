@@ -5,6 +5,7 @@ import hub.com.api_store.dto.waste.WasteDTOResponse;
 import hub.com.api_store.entity.Inventory;
 import hub.com.api_store.entity.Waste;
 import hub.com.api_store.mapper.WasteMapper;
+import hub.com.api_store.nums.WasteReason;
 import hub.com.api_store.repo.InventoryRepo;
 import hub.com.api_store.repo.WasteRepo;
 import hub.com.api_store.service.WasteService;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +54,14 @@ public class WasteServiceImpl implements WasteService {
     public WasteDTOResponse findByIdWaste(Long id) {
         Waste waste = wasteServiceDomain.findById(id);
         return wasteMapper.toWasteDTOResponse(waste);
+    }
+
+    @Override
+    public List<WasteDTOResponse> findAllWasteByReason(WasteReason reason) {
+        List<Waste> wasteList = wasteRepo.findByReason(reason);
+        return wasteList.stream()
+                .map(wasteMapper::toWasteDTOResponse)
+                .toList();
     }
 
     // POST
