@@ -77,5 +77,15 @@ public class WasteServiceImpl implements WasteService {
         return wasteMapper.toWasteDTOResponse(wasteSaved);
     }
 
+    @Transactional
+    @Override
+    public void deleteWaste(Long id) {
+        Waste waste = wasteServiceDomain.findById(id);
+        Inventory inventory = waste.getInventory();
+        inventory.setQuantity(inventory.getQuantity().add(waste.getQuantity()));
+        inventoryRepo.save(inventory);
+        wasteRepo.delete(waste);
+    }
+
 
 }
