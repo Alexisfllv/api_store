@@ -47,4 +47,11 @@ public class WasteController {
         ));
     }
 
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWasteDelete(@PathVariable Long id){
+        wasteService.deleteWaste(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }
