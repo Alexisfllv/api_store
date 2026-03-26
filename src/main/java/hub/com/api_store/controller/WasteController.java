@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -48,6 +49,15 @@ public class WasteController {
         List<WasteDTOResponse> res = wasteService.findAllWasteByReason(reason);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(StatusApi.SUCCESS, res));
+    }
+
+    @GetMapping("/by-date")
+    public ResponseEntity<GenericResponse<List<WasteDTOResponse>>> findAllByDateGet(
+            @RequestParam LocalDateTime start,
+            @RequestParam LocalDateTime end){
+        List<WasteDTOResponse> responseList = wasteService.findAllWasteByWasteDateBetween(start, end);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(StatusApi.SUCCESS, responseList));
     }
 
     // Post
