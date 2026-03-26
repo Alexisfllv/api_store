@@ -6,6 +6,7 @@ import hub.com.api_store.nums.WasteReason;
 import hub.com.api_store.util.page.PageResponse;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface WasteService {
@@ -17,6 +18,7 @@ public interface WasteService {
 
     List<WasteDTOResponse> findAllWasteByReason(WasteReason reason);
 
+    List<WasteDTOResponse> findAllWasteByWasteDateBetween(LocalDateTime start, LocalDateTime end);
 
     // POST
     WasteDTOResponse createWaste(WasteDTORequest wasteDTORequest);
