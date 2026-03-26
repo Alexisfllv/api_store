@@ -15,4 +15,7 @@ public interface WasteService {
 
     // POST
     WasteDTOResponse createWaste(WasteDTORequest wasteDTORequest);
+
+    // DELETE
+    void deleteWaste(Long id);
 }
