@@ -64,6 +64,12 @@ public class WasteServiceImpl implements WasteService {
                 .toList();
     }
 
+    @Override
+    public List<WasteDTOResponse> findAllWasteByWasteDateBetween(LocalDateTime start, LocalDateTime end) {
+        List<Waste>  wasteList = wasteRepo.findByWasteDateBetween(start, end);
+        return wasteList.stream().map(wasteMapper::toWasteDTOResponse).toList();
+    }
+
     // POST
     @Transactional
     @Override
