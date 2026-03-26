@@ -276,4 +276,34 @@ public class WasteServiceImplTest {
         inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(wasteSaved);
         inOrder.verifyNoMoreInteractions();
     }
+
+
+    // DELETE
+    @Test
+    @DisplayName("deleteWaste")
+    void deleteWaste() {
+
+        // Arrange
+        Long id = 1L;
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+
+        Inventory inventory = new Inventory(1L, new BigDecimal("10.00"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59),
+                product);
+
+        Waste waste = new Waste(1L, new BigDecimal("5.00"), GlobalUnit.KG, WasteReason.EXPIRED,
+                "notes", fixedNow, inventory);
+
+        when(wasteServiceDomain.findById(id)).thenReturn(waste);
+
+        // Act
+        wasteServiceImpl.deleteWaste(id);
+
+        // Assert
+        InOrder inOrder = inOrder(inventoryRepo, wasteRepo);
+        inOrder.verify(inventoryRepo).save(inventory);
+        inOrder.verify(wasteRepo).delete(waste);
+        assertEquals(0, new BigDecimal("15.00").compareTo(inventory.getQuantity()));
+    }
 }
