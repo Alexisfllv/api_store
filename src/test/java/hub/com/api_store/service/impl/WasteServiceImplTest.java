@@ -235,6 +235,59 @@ public class WasteServiceImplTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    @DisplayName("findAllWasteByWasteDateBetween")
+    void findAllWasteByWasteDateBetween() {
+        // Arrange
+        LocalDateTime start = LocalDateTime.of(2026, 3, 1, 0, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 3, 31, 23, 59, 59);
+
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+        Inventory inventory = new Inventory(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59), product);
+
+        Waste waste1 = new Waste(1L, new BigDecimal("5.000"), GlobalUnit.KG, WasteReason.EXPIRED,
+                "notes1", LocalDateTime.of(2026, 3, 2, 11, 0, 0), inventory);
+        Waste waste2 = new Waste(2L, new BigDecimal("10.000"), GlobalUnit.KG, WasteReason.DAMAGED,
+                "notes2", LocalDateTime.of(2026, 3, 15, 9, 0, 0), inventory);
+
+        WasteDTOResponse response1 = new WasteDTOResponse(1L, new BigDecimal("5.000"), GlobalUnit.KG,
+                WasteReason.EXPIRED, "notes1", LocalDateTime.of(2026, 3, 2, 11, 0, 0),
+                1L, "LOT-2026-022", "A-01-B", 1L, "name");
+        WasteDTOResponse response2 = new WasteDTOResponse(2L, new BigDecimal("10.000"), GlobalUnit.KG,
+                WasteReason.DAMAGED, "notes2", LocalDateTime.of(2026, 3, 15, 9, 0, 0),
+                1L, "LOT-2026-022", "A-01-B", 1L, "name");
+
+        List<Waste> wasteList = List.of(waste1, waste2);
+        List<WasteDTOResponse> expectedList = List.of(response1, response2);
+
+        when(wasteRepo.findByWasteDateBetween(start, end)).thenReturn(wasteList);
+        when(wasteMapper.toWasteDTOResponse(waste1)).thenReturn(response1);
+        when(wasteMapper.toWasteDTOResponse(waste2)).thenReturn(response2);
+
+        // Act
+        List<WasteDTOResponse> result = wasteServiceImpl.findAllWasteByWasteDateBetween(start, end);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(2, result.size()),
+                () -> assertEquals(expectedList, result),
+                () -> assertTrue(result.get(0).wasteDate().isAfter(start)),
+                () -> assertTrue(result.get(0).wasteDate().isBefore(end)),
+                () -> assertTrue(result.get(1).wasteDate().isAfter(start)),
+                () -> assertTrue(result.get(1).wasteDate().isBefore(end))
+        );
+
+        // InOrder & Verify
+        InOrder inOrder = inOrder(wasteRepo, wasteMapper);
+        inOrder.verify(wasteRepo, times(1)).findByWasteDateBetween(start, end);
+        inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste1);
+        inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste2);
+        inOrder.verifyNoMoreInteractions();
+    }
+
     // POST
     @Test
     @DisplayName("createWaste")
