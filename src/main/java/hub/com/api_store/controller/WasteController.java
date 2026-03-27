@@ -2,6 +2,7 @@ package hub.com.api_store.controller;
 
 import hub.com.api_store.dto.waste.WasteDTORequest;
 import hub.com.api_store.dto.waste.WasteDTOResponse;
+import hub.com.api_store.dto.waste.WasteSummaryDTOResponse;
 import hub.com.api_store.nums.WasteReason;
 import hub.com.api_store.service.WasteService;
 import hub.com.api_store.util.page.PageResponse;
@@ -58,6 +59,13 @@ public class WasteController {
         List<WasteDTOResponse> responseList = wasteService.findAllWasteByWasteDateBetween(start, end);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(StatusApi.SUCCESS, responseList));
+    }
+
+    @GetMapping("/sumary")
+    public ResponseEntity<GenericResponse<WasteSummaryDTOResponse>> findAllSumaryGet(){
+        WasteSummaryDTOResponse response = wasteService.getSumaryWaste();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(StatusApi.SUCCESS, response));
     }
 
     // Post
