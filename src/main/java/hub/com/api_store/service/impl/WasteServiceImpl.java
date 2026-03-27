@@ -2,6 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.waste.WasteDTORequest;
 import hub.com.api_store.dto.waste.WasteDTOResponse;
+import hub.com.api_store.dto.waste.WasteSummaryDTOResponse;
 import hub.com.api_store.entity.Inventory;
 import hub.com.api_store.entity.Waste;
 import hub.com.api_store.mapper.WasteMapper;
@@ -20,9 +21,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +72,28 @@ public class WasteServiceImpl implements WasteService {
     public List<WasteDTOResponse> findAllWasteByWasteDateBetween(LocalDateTime start, LocalDateTime end) {
         List<Waste>  wasteList = wasteRepo.findByWasteDateBetween(start, end);
         return wasteList.stream().map(wasteMapper::toWasteDTOResponse).toList();
+    }
+
+    @Override
+    public WasteSummaryDTOResponse getSumaryWaste() {
+        List<Waste> wasteList = wasteRepo.findAll();
+
+        // total
+        Long totalWastes = (long) wasteList.size();
+
+        // total quantity
+        BigDecimal totalQuantityLost = wasteList.stream()
+                .map(Waste::getQuantity)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // map reason,quantity
+        Map<WasteReason,BigDecimal> byReason = wasteList.stream()
+                .collect(Collectors.groupingBy(
+                        Waste::getReason,
+                        Collectors.reducing(BigDecimal.ZERO,
+                                Waste::getQuantity, BigDecimal::add)
+                ));
+        return new WasteSummaryDTOResponse(totalWastes,totalQuantityLost,byReason);
     }
 
     // POST
