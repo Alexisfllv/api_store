@@ -1,0 +1,100 @@
+package hub.com.api_store.controller;
+
+
+import hub.com.api_store.dto.category.CategoryDTORequest;
+import hub.com.api_store.dto.category.CategoryDTOResponse;
+import hub.com.api_store.dto.category.CategoryDTOUpdate;
+import hub.com.api_store.exception.InvalidStatusException;
+import hub.com.api_store.nums.GlobalStatus;
+import hub.com.api_store.service.CategoryService;
+import hub.com.api_store.util.page.PageResponse;
+import hub.com.api_store.util.response.GenericResponse;
+import hub.com.api_store.util.response.StatusApi;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/categories")
+public class CategoryController {
+    private final CategoryService categoryService;
+
+    // GET
+    @GetMapping("/{id}")
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> getCategoryIdGet(@PathVariable Long id ){
+        CategoryDTOResponse response = categoryService.getCategoryId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.SUCCESS, response)
+        );
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<GenericResponse<PageResponse<CategoryDTOResponse>>> getCategoryPageGet(
+            @RequestParam (defaultValue = "0") int page,
+            @RequestParam (defaultValue = "3") int size){
+        PageResponse<CategoryDTOResponse> paged = categoryService.getPageListCategory(page, size);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(StatusApi.SUCCESS, paged));
+    }
+
+    @GetMapping("/page/status/{status}")
+    public ResponseEntity<GenericResponse<PageResponse<CategoryDTOResponse>>> getCategoryPageStatusGet(
+            @PathVariable String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size){
+        try {
+            GlobalStatus upperStatus =  GlobalStatus.valueOf(status.toUpperCase());
+            PageResponse<CategoryDTOResponse> paged = categoryService.getPageListCategoryByStatus(upperStatus,page,size);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new GenericResponse<>(StatusApi.SUCCESS, paged));
+        } catch (IllegalArgumentException e) {
+            throw new InvalidStatusException(
+                    "Status inválido. Valores: ACTIVE, INACTIVE, DELETED");
+        }
+    }
+
+
+    // POST
+    @PostMapping
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> addCategoryPost(@Valid @RequestBody CategoryDTORequest categoryDTORequest){
+        CategoryDTOResponse response = categoryService.addCategory(categoryDTORequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new GenericResponse<>(StatusApi.CREATED, response)
+        );
+    }
+
+    // PUT
+    @PutMapping("/{id}")
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryPut(@PathVariable Long id, @Valid @RequestBody CategoryDTOUpdate categoryDTOUpdate){
+        CategoryDTOResponse response = categoryService.updateCategory(id, categoryDTOUpdate);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new GenericResponse<>(StatusApi.UPDATED, response)
+        );
+    }
+
+    // Delete
+    @DeleteMapping("/soft-delete/{id}")
+    public ResponseEntity<Void> deleteCategoryDelete(@PathVariable Long id){
+        categoryService.deleteSofCategory(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    // PATCH
+    @PatchMapping("/{id}/status/{status}")
+    public ResponseEntity<GenericResponse<CategoryDTOResponse>> updateCategoryStatusPatch(@PathVariable Long id, @PathVariable String status){
+        try {
+            GlobalStatus upperStatus =  GlobalStatus.valueOf(status.toUpperCase());
+            CategoryDTOResponse response = categoryService.updateCategoryStatus(id, upperStatus);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new GenericResponse<>(StatusApi.UPDATED, response));
+        } catch (IllegalArgumentException e) {
+            throw new InvalidStatusException(
+                    "Status inválido. Valores: ACTIVE, INACTIVE, DELETED. Case: ");
+        }
+    }
+
+
+}
