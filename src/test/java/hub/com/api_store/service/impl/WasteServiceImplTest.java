@@ -2,6 +2,7 @@ package hub.com.api_store.service.impl;
 
 import hub.com.api_store.dto.waste.WasteDTORequest;
 import hub.com.api_store.dto.waste.WasteDTOResponse;
+import hub.com.api_store.dto.waste.WasteSummaryDTOResponse;
 import hub.com.api_store.entity.Category;
 import hub.com.api_store.entity.Inventory;
 import hub.com.api_store.entity.Product;
@@ -29,7 +30,9 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -286,6 +289,56 @@ public class WasteServiceImplTest {
         inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste1);
         inOrder.verify(wasteMapper, times(1)).toWasteDTOResponse(waste2);
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("getSumaryWaste")
+    void getSumaryWaste() {
+        // Arrange
+        Category category = new Category(1L, "name", "description", GlobalStatus.ACTIVE);
+        Product product = new Product(1L, "name", GlobalUnit.KG, GlobalStatus.ACTIVE, category);
+        Inventory inventory = new Inventory(1L, new BigDecimal("10.000"), GlobalUnit.KG,
+                "A-01-B", "LOT-2026-022", LocalDateTime.of(2026, 6, 30, 23, 59, 59), product);
+
+        Waste waste1 = new Waste(1L, new BigDecimal("10.000"), GlobalUnit.KG, WasteReason.EXPIRED,
+                "notes1", fixedNow, inventory);
+        Waste waste2 = new Waste(2L, new BigDecimal("20.000"), GlobalUnit.KG, WasteReason.DAMAGED,
+                "notes2", fixedNow, inventory);
+        Waste waste3 = new Waste(3L, new BigDecimal("20.000"), GlobalUnit.KG, WasteReason.DAMAGED,
+                "notes3", fixedNow, inventory);
+
+        List<Waste> wasteList = List.of(waste1, waste2, waste3);
+
+        Map<WasteReason, BigDecimal> expectedByReason = new HashMap<>();
+        expectedByReason.put(WasteReason.EXPIRED, new BigDecimal("10.000"));
+        expectedByReason.put(WasteReason.DAMAGED, new BigDecimal("40.000"));
+
+        WasteSummaryDTOResponse expected = new WasteSummaryDTOResponse(
+                3L,
+                new BigDecimal("50.000"),
+                expectedByReason
+        );
+
+        when(wasteRepo.findAll()).thenReturn(wasteList);
+
+        // Act
+        WasteSummaryDTOResponse result = wasteServiceImpl.getSumaryWaste();
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(expected.totalWastes(), result.totalWastes()),
+                () -> assertEquals(0, expected.totalQuantityLost().compareTo(result.totalQuantityLost())),
+                () -> assertEquals(2, result.byReason().size()),
+                () -> assertEquals(0, expectedByReason.get(WasteReason.EXPIRED)
+                        .compareTo(result.byReason().get(WasteReason.EXPIRED))),
+                () -> assertEquals(0, expectedByReason.get(WasteReason.DAMAGED)
+                        .compareTo(result.byReason().get(WasteReason.DAMAGED)))
+        );
+
+        // Verify
+        verify(wasteRepo, times(1)).findAll();
+        verifyNoMoreInteractions(wasteRepo);
     }
 
     // POST
