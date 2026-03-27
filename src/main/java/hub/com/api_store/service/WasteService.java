@@ -2,6 +2,7 @@ package hub.com.api_store.service;
 
 import hub.com.api_store.dto.waste.WasteDTORequest;
 import hub.com.api_store.dto.waste.WasteDTOResponse;
+import hub.com.api_store.dto.waste.WasteSummaryDTOResponse;
 import hub.com.api_store.nums.WasteReason;
 import hub.com.api_store.util.page.PageResponse;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,8 @@ public interface WasteService {
     List<WasteDTOResponse> findAllWasteByReason(WasteReason reason);
 
     List<WasteDTOResponse> findAllWasteByWasteDateBetween(LocalDateTime start, LocalDateTime end);
+
+    WasteSummaryDTOResponse getSumaryWaste();
 
     // POST
     WasteDTOResponse createWaste(WasteDTORequest wasteDTORequest);
