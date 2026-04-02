@@ -1,4 +1,9 @@
 package hub.com.api_store.dto.security;
 
-public record RegisterRequest() {
-}
+import hub.com.api_store.entity.security.Role;
+
+public record RegisterRequest(
+        String username,
+        String password,
+        Role role
+) {}

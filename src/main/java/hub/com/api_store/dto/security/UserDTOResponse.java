@@ -1,4 +1,10 @@
 package hub.com.api_store.dto.security;
 
-public record UserResponseDTO() {
-}
+import hub.com.api_store.entity.security.Role;
+
+public record UserDTOResponse(
+        Long id,
+        String name,
+        String password,
+        Role role
+) {}
