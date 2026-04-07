@@ -22,6 +22,8 @@ Inventory management REST API — handles products, categories, suppliers, purch
 | H2 (testing) | Latest |
 | JUnit | 6.0.2 |
 | Mockito | 5.x |
+| Spring Security | 7.0.2 |
+| JJWT | 0.12.6 |
 
 ---
 
@@ -195,6 +197,27 @@ classDiagram
 |--------|----------|-------------|
 | `GET` | `/page` | Paginated list |
 
+### Auth `/auth`
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/register` | Register user (returns confirmation) |
+| `POST` | `/login` | Login and get JWT token |
+| `POST` | `/logout` | Invalidate token (blacklist) |
+
+---
+
+## Security
+
+| Feature | Detail |
+|---------|--------|
+| Authentication | JWT Bearer Token |
+| Password encoding | BCrypt |
+| Token expiration | 24 hours |
+| Session | Stateless |
+| Logout | Token blacklist in DB |
+| `ROLE_USER` | GET endpoints only |
+| `ROLE_ADMIN` | All endpoints |
+
 ---
 
 ## Summary
@@ -208,4 +231,5 @@ classDiagram
 | Purchases | 8 |
 | Wastes | 7 |
 | Notifications | 1 |
-| **Total** | **51** |
+| Auth | 3 |
+| **Total** | **54** |
